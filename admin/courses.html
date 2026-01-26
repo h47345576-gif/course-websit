@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الكورسات | لوحة التحكم</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .course-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .course-body {
+            padding: 15px;
+        }
+
+        .course-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .course-meta {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .course-actions {
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid var(--border);
+            padding-top: 15px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-edit {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar" id="sidebar">
+        <!-- (Same Sidebar as index.html - ideally would be dynamic/included) -->
+        <div class="sidebar-header">
+            <span class="logo-icon">📚</span>
+            <span class="logo-text">لوحة التحكم</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span>الرئيسية</span>
+            </a>
+            <a href="users.html" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span>المستخدمون</span>
+            </a>
+            <a href="courses.html" class="nav-item active">
+                <span class="nav-icon">📚</span>
+                <span>الكورسات</span>
+            </a>
+            <a href="payments.html" class="nav-item">
+                <span class="nav-icon">💰</span>
+                <span>المدفوعات</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <button class="menu-toggle" id="menuToggle">☰</button>
+            <h1 class="page-title">إدارة الكورسات</h1>
+            <button class="btn-primary" onclick="openAddCourseModal()">+ إضافة كورس جديد</button>
+        </header>
+
+        <div class="dashboard">
+            <div class="courses-grid" id="coursesGrid">
+                <!-- Courses will be loaded here -->
+                <div class="loading">جاري التحميل...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Course Modal -->
+    <div class="modal" id="courseModal">
+        <div class="modal-content">
+            <h2 id="modalTitle" style="margin-bottom: 20px;">إضافة كورس جديد</h2>
+            <form id="courseForm">
+                <div class="form-group">
+                    <label>عنوان الكورس</label>
+                    <input type="text" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>السعر (ل.س)</label>
+                    <input type="number" name="price" value="0">
+                </div>
+                <div class="form-group">
+                    <label>التصنيف</label>
+                    <select name="category">
+                        <option value="برمجة">برمجة</option>
+                        <option value="تصميم">تصميم</option>
+                        <option value="لغات">لغات</option>
+                        <option value="أكاديمي">أكاديمي</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn-primary" style="flex: 1">حفظ</button>
+                    <button type="button" class="btn-link" onclick="closeModal()"
+                        style="flex: 1; background: var(--light); border-radius: 8px;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="admin.js"></script>
+    <script>
+        // Courses Page Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCourses();
+        });
+
+        async function loadCourses() {
+            const grid = document.getElementById('coursesGrid');
+            try {
+                const data = await api.getCourses();
+                const courses = data.results || [];
+
+                grid.innerHTML = courses.map(course => `
+                    <div class="course-card">
+                        <img src="${course.thumbnail_url}" class="course-img" alt="${course.title}">
+                        <div class="course-body">
+                            <div class="course-title">${course.title}</div>
+                            <div class="course-meta">
+                                ${course.instructor} • ${course.price === 0 ? 'مجاني' : course.price + ' ل.س'}
+                            </div>
+                            <div class="course-actions">
+                                <button class="btn-action btn-edit" onclick="editCourse(${course.id})">تعديل</button>
+                                <button class="btn-action btn-delete" onclick="deleteCourse(${course.id})">حذف</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                grid.innerHTML = `<p>خطأ: ${error.message}</p>`;
+            }
+        }
+
+        function openAddCourseModal() {
+            document.getElementById('courseModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('courseModal').classList.remove('active');
+        }
+
+        // Placeholder functions for now
+        function editCourse(id) { alert('سيتم تفعيل التعديل قريباً (API غير جاهز بعد)'); }
+        function deleteCourse(id) {
+            if (confirm('هل أنت متأكد من الحذف؟')) {
+                alert('سيتم تفعيل الحذف قريباً');
+            }
+        }
+    </script>
+</body>
+
+</html>
