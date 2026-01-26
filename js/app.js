@@ -1,27 +1,37 @@
 // Main Application Logic
 document.addEventListener('DOMContentLoaded', () => {
     // Check current page and initialize
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const path = window.location.pathname;
+    const pageName = path.split('/').pop().toLowerCase();
+
+    // Normalize page name (handle clean URLs)
+    let page = pageName;
+    if (pageName === '' || pageName === 'index' || pageName === 'index.html') page = 'index';
+    else if (pageName === 'courses' || pageName === 'courses.html') page = 'courses';
+    else if (pageName === 'course' || pageName === 'course.html') page = 'course';
+    else if (pageName === 'login' || pageName === 'login.html') page = 'login';
+    else if (pageName === 'register' || pageName === 'register.html') page = 'register';
+
+    console.log('Current page detected:', page); // Debugging
 
     // Update navigation based on auth state
     updateNavigation();
 
     // Page-specific initialization
-    switch (currentPage) {
-        case 'index.html':
-        case '':
+    switch (page) {
+        case 'index':
             loadFeaturedCourses();
             break;
-        case 'courses.html':
+        case 'courses':
             loadAllCourses();
             break;
-        case 'course.html':
+        case 'course':
             loadCourseDetails();
             break;
-        case 'login.html':
+        case 'login':
             initLoginForm();
             break;
-        case 'register.html':
+        case 'register':
             initRegisterForm();
             break;
     }
