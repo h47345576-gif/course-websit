@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة التعلم | الصفحة الرئيسية</title>
+    <meta name="description" content="منصة تعليمية متكاملة لتعلم البرمجة والتصميم واللغات">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">📚</span>
+                <span class="logo-text">منصة التعلم</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">الرئيسية</a></li>
+                <li><a href="courses.html">الكورسات</a></li>
+                <li><a href="#categories">التصنيفات</a></li>
+                <li><a href="#contact">تواصل معنا</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="login.html" class="btn btn-outline">تسجيل الدخول</a>
+                <a href="register.html" class="btn btn-primary">إنشاء حساب</a>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="highlight">تعلّم</span> مهارات جديدة
+                    <br>وابنِ مستقبلك
+                </h1>
+                <p class="hero-subtitle">
+                    اكتشف مئات الكورسات في البرمجة، التصميم، اللغات والمزيد
+                    <br>مع أفضل المدربين العرب
+                </p>
+                <div class="hero-buttons">
+                    <a href="courses.html" class="btn btn-primary btn-lg">
+                        تصفح الكورسات
+                        <span class="btn-arrow">←</span>
+                    </a>
+                    <a href="#featured" class="btn btn-glass btn-lg">
+                        شاهد الفيديو التعريفي
+                        <span class="play-icon">▶</span>
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number" id="coursesCount">5+</span>
+                        <span class="stat-label">كورس</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">درس</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">100+</span>
+                        <span class="stat-label">طالب</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="floating-card card-1">
+                    <span class="card-icon">🎓</span>
+                    <span class="card-text">شهادات معتمدة</span>
+                </div>
+                <div class="floating-card card-2">
+                    <span class="card-icon">💻</span>
+                    <span class="card-text">تطبيق عملي</span>
+                </div>
+                <div class="floating-card card-3">
+                    <span class="card-icon">🌟</span>
+                    <span class="card-text">دعم مستمر</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories" id="categories">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">التصنيفات</h2>
+                <p class="section-subtitle">اختر المجال الذي يناسبك وابدأ رحلة التعلم</p>
+            </div>
+            <div class="categories-grid">
+                <a href="courses.html?category=برمجة" class="category-card">
+                    <div class="category-icon">💻</div>
+                    <h3>البرمجة</h3>
+                    <p>تعلم تطوير الويب والتطبيقات</p>
+                </a>
+                <a href="courses.html?category=تصميم" class="category-card">
+                    <div class="category-icon">🎨</div>
+                    <h3>التصميم</h3>
+                    <p>فوتوشوب وتصميم الجرافيك</p>
+                </a>
+                <a href="courses.html?category=لغات" class="category-card">
+                    <div class="category-icon">🌍</div>
+                    <h3>اللغات</h3>
+                    <p>الإنجليزية وغيرها</p>
+                </a>
+                <a href="courses.html?category=أكاديمي" class="category-card">
+                    <div class="category-icon">📐</div>
+                    <h3>أكاديمي</h3>
+                    <p>الرياضيات والعلوم</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Courses Section -->
+    <section class="featured-courses" id="featured">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">الكورسات المميزة</h2>
+                <p class="section-subtitle">أحدث وأفضل الكورسات المتاحة على المنصة</p>
+            </div>
+            <div class="courses-grid" id="coursesGrid">
+                <!-- Courses will be loaded dynamically -->
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>جاري تحميل الكورسات...</p>
+                </div>
+            </div>
+            <div class="section-footer">
+                <a href="courses.html" class="btn btn-outline btn-lg">عرض جميع الكورسات</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">لماذا تختارنا؟</h2>
+                <p class="section-subtitle">نقدم لك أفضل تجربة تعليمية</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎥</div>
+                    <h3>فيديوهات عالية الجودة</h3>
+                    <p>محتوى مرئي واضح ومفصل مع شرح خطوة بخطوة</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>تعلم من أي مكان</h3>
+                    <p>المنصة متاحة على الويب وتطبيق الموبايل</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎓</div>
+                    <h3>شهادات معتمدة</h3>
+                    <p>احصل على شهادة عند إكمال أي كورس</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>دعم مباشر</h3>
+                    <p>فريق دعم جاهز للإجابة على استفساراتك</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>ابدأ رحلة التعلم اليوم!</h2>
+                <p>انضم إلى آلاف الطلاب الذين يطورون مهاراتهم معنا</p>
+                <a href="register.html" class="btn btn-white btn-lg">إنشاء حساب مجاني</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <span class="logo-icon">📚</span>
+                        <span class="logo-text">منصة التعلم</span>
+                    </a>
+                    <p>منصة تعليمية عربية متكاملة تهدف لنشر المعرفة وتطوير المهارات</p>
+                </div>
+                <div class="footer-links">
+                    <h4>روابط سريعة</h4>
+                    <ul>
+                        <li><a href="courses.html">الكورسات</a></li>
+                        <li><a href="login.html">تسجيل الدخول</a></li>
+                        <li><a href="register.html">إنشاء حساب</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>تواصل معنا</h4>
+                    <ul>
+                        <li>📧 info@platform.com</li>
+                        <li>📱 +963 XXX XXX XXX</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 منصة التعلم. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

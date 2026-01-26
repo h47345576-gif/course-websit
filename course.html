@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل الكورس | منصة التعلم</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .course-page {
+            padding-top: 80px;
+        }
+
+        .course-header {
+            background: var(--gradient);
+            color: var(--white);
+            padding: 60px 0;
+        }
+
+        .course-header .container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .course-header h1 {
+            font-size: 2.5rem;
+            margin: 15px 0;
+        }
+
+        .course-description {
+            opacity: 0.9;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .course-meta-info {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .course-meta-info span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .course-header-image img {
+            width: 100%;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .course-body {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 40px;
+            padding: 40px 0;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .course-content-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .lessons-list {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .lesson-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--gray-200);
+            transition: var(--transition);
+        }
+
+        .lesson-item:last-child {
+            border-bottom: none;
+        }
+
+        .lesson-item:hover {
+            background: var(--gray-100);
+        }
+
+        .lesson-number {
+            width: 35px;
+            height: 35px;
+            background: var(--primary-light);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .lesson-info {
+            flex: 1;
+        }
+
+        .lesson-info h4 {
+            font-size: 1rem;
+            color: var(--dark);
+            margin-bottom: 3px;
+        }
+
+        .lesson-type {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+        }
+
+        .lesson-duration {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+        }
+
+        .course-sidebar {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .price-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+
+        .price-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .price-value.free {
+            color: var(--secondary);
+        }
+
+        .price-card .btn {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .course-includes {
+            text-align: right;
+        }
+
+        .course-includes li {
+            padding: 8px 0;
+            color: var(--gray-600);
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .course-includes li:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 992px) {
+
+            .course-header .container,
+            .course-body {
+                grid-template-columns: 1fr;
+            }
+
+            .course-header-image {
+                order: -1;
+            }
+
+            .course-sidebar {
+                position: static;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">📚</span>
+                <span class="logo-text">منصة التعلم</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">الرئيسية</a></li>
+                <li><a href="courses.html">الكورسات</a></li>
+                <li><a href="index.html#categories">التصنيفات</a></li>
+                <li><a href="index.html#contact">تواصل معنا</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="login.html" class="btn btn-outline">تسجيل الدخول</a>
+                <a href="register.html" class="btn btn-primary">إنشاء حساب</a>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+        </div>
+    </nav>
+
+    <!-- Course Content -->
+    <div class="course-page" id="courseDetails">
+        <div class="loading-spinner" style="padding: 100px;">
+            <div class="spinner"></div>
+            <p>جاري تحميل الكورس...</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>© 2026 منصة التعلم. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
