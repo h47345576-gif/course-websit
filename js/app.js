@@ -273,9 +273,21 @@ function initLoginForm() {
         try {
             await api.login(email, password);
 
-            // Check for redirect
+            // Get user and check role for redirect
+            const user = api.getCurrentUser();
             const urlParams = new URLSearchParams(window.location.search);
-            const redirect = urlParams.get('redirect') || 'index.html';
+            let redirect = urlParams.get('redirect');
+
+            if (!redirect) {
+                if (user.role === 'admin') {
+                    redirect = 'admin/index.html';
+                } else if (user.role === 'teacher') {
+                    redirect = 'teacher/index.html';
+                } else {
+                    redirect = 'index.html';
+                }
+            }
+
             window.location.href = redirect;
         } catch (error) {
             errorDiv.textContent = error.message;
