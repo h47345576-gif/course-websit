@@ -128,7 +128,6 @@
 
 <body>
     <aside class="sidebar" id="sidebar">
-        <!-- (Same Sidebar as index.html - ideally would be dynamic/included) -->
         <div class="sidebar-header">
             <span class="logo-icon">📚</span>
             <span class="logo-text">لوحة التحكم</span>
@@ -150,7 +149,21 @@
                 <span class="nav-icon">💰</span>
                 <span>المدفوعات</span>
             </a>
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span>الإعدادات</span>
+            </a>
         </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html" class="nav-item">
+                <span class="nav-icon">🌐</span>
+                <span>عرض الموقع</span>
+            </a>
+            <button class="nav-item logout-btn" onclick="logout()">
+                <span class="nav-icon">🚪</span>
+                <span>تسجيل الخروج</span>
+            </button>
+        </div>
     </aside>
 
     <main class="main-content">
@@ -180,6 +193,10 @@
                 <div class="form-group">
                     <label>الوصف</label>
                     <textarea name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>محتوى إضافي</label>
+                    <input type="text" name="extra_content" placeholder="أدخل محتوى إضافي للكورس">
                 </div>
                 <div class="form-group">
                     <label>السعر (ل.س)</label>
@@ -238,20 +255,105 @@
             }
         }
 
-        function openAddCourseModal() {
-            document.getElementById('courseModal').classList.add('active');
-        }
-
         function closeModal() {
             document.getElementById('courseModal').classList.remove('active');
+            document.getElementById('courseForm').reset();
+            delete document.getElementById('courseForm').dataset.courseId;
         }
 
-        // Placeholder functions for now
-        function editCourse(id) { alert('سيتم تفعيل التعديل قريباً (API غير جاهز بعد)'); }
-        function deleteCourse(id) {
-            if (confirm('هل أنت متأكد من الحذف؟')) {
-                alert('سيتم تفعيل الحذف قريباً');
+        // Edit Course - Opens modal with course data
+        async function editCourse(id) {
+            try {
+                const data = await api.getCourses();
+                const course = (data.results || []).find(c => c.id === id);
+                if (course) {
+                    document.getElementById('modalTitle').textContent = 'تعديل الكورس';
+                    document.querySelector('[name="title"]').value = course.title || '';
+                    document.querySelector('[name="description"]').value = course.description || '';
+                    document.querySelector('[name="price"]').value = course.price || 0;
+                    document.querySelector('[name="category"]').value = course.category || 'برمجة';
+                    document.querySelector('[name="extra_content"]').value = course.extra_content || '';
+                    document.getElementById('courseForm').dataset.courseId = id;
+                    document.getElementById('courseModal').classList.add('active');
+                }
+            } catch (error) {
+                alert('خطأ في تحميل بيانات الكورس: ' + error.message);
             }
+        }
+
+        // Delete Course
+        async function deleteCourse(id) {
+            if (confirm('هل أنت متأكد من حذف هذا الكورس؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                try {
+                    // API call to delete course
+                    const token = localStorage.getItem('auth_token');
+                    const response = await fetch(`${API_BASE_URL}/api/v1/courses/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    if (response.ok) {
+                        alert('تم حذف الكورس بنجاح!');
+                        loadCourses(); // Reload the list
+                    } else {
+                        const err = await response.json();
+                        alert('فشل الحذف: ' + (err.message || 'خطأ غير معروف'));
+                    }
+                } catch (error) {
+                    alert('خطأ في حذف الكورس: ' + error.message);
+                }
+            }
+        }
+
+        // Form Submit Handler
+        document.getElementById('courseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const courseId = form.dataset.courseId;
+            const formData = {
+                title: form.title.value,
+                description: form.description.value,
+                price: parseFloat(form.price.value) || 0,
+                category: form.category.value,
+                extra_content: form.extra_content.value
+            };
+
+            try {
+                const token = localStorage.getItem('auth_token');
+                const url = courseId
+                    ? `${API_BASE_URL}/api/v1/courses/${courseId}`
+                    : `${API_BASE_URL}/api/v1/courses`;
+                const method = courseId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert(courseId ? 'تم تحديث الكورس بنجاح!' : 'تم إضافة الكورس بنجاح!');
+                    closeModal();
+                    loadCourses();
+                } else {
+                    const err = await response.json();
+                    alert('فشل: ' + (err.message || 'خطأ غير معروف'));
+                }
+            } catch (error) {
+                alert('خطأ: ' + error.message);
+            }
+        });
+
+        function openAddCourseModal() {
+            document.getElementById('modalTitle').textContent = 'إضافة كورس جديد';
+            document.getElementById('courseForm').reset();
+            delete document.getElementById('courseForm').dataset.courseId;
+            document.getElementById('courseModal').classList.add('active');
         }
     </script>
 </body>

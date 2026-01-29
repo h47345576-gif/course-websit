@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإعدادات | لوحة التحكم</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="logo-icon">📚</span>
+            <span class="logo-text">لوحة التحكم</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span>الرئيسية</span>
+            </a>
+            <a href="users.html" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span>المستخدمون</span>
+            </a>
+            <a href="courses.html" class="nav-item">
+                <span class="nav-icon">📚</span>
+                <span>الكورسات</span>
+            </a>
+            <a href="payments.html" class="nav-item">
+                <span class="nav-icon">💰</span>
+                <span>المدفوعات</span>
+            </a>
+            <a href="settings.html" class="nav-item active">
+                <span class="nav-icon">⚙️</span>
+                <span>الإعدادات</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html" class="nav-item">
+                <span class="nav-icon">🌐</span>
+                <span>عرض الموقع</span>
+            </a>
+            <button class="nav-item logout-btn" onclick="logout()">
+                <span class="nav-icon">🚪</span>
+                <span>تسجيل الخروج</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <button class="menu-toggle" id="menuToggle">☰</button>
+            <h1>الإعدادات</h1>
+        </header>
+
+        <div class="dashboard">
+            <h2>إعدادات المنصة</h2>
+            <br>
+            <h3>الإعدادات العامة</h3>
+            <p>اسم المنصة: منصة التعلم</p>
+            <p>البريد الإلكتروني للدعم: support@platform.com</p>
+            <p>اللغة الافتراضية: العربية</p>
+            <br>
+            <h3>إعدادات الدفع</h3>
+            <p>العملة: ليرة سورية (ل.س)</p>
+            <p>طريقة الدفع: تحويل بنكي / نقدي</p>
+            <p>نسبة الخصم للطلاب: 10%</p>
+            <br>
+            <h3>إعدادات الأمان</h3>
+            <p>التحقق بخطوتين: غير مفعل</p>
+            <p>مدة صلاحية الجلسة: 7 أيام</p>
+            <p>الحد الأقصى لمحاولات تسجيل الدخول: 5 محاولات</p>
+            <br>
+            <h3>إعدادات الإشعارات</h3>
+            <p>إشعارات البريد الإلكتروني: مفعل</p>
+            <p>إشعارات التسجيل الجديد: مفعل</p>
+            <p>إشعارات المدفوعات: مفعل</p>
+        </div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="admin.js"></script>
+</body>
+
+</html>
