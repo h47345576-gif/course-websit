@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طلابي | لوحة المعلم</title>
+    <link rel="stylesheet" href="../admin/admin.css">
+    <style>
+        /* Academic Style Tweaks */
+        body {
+            background-color: #f3f4f6;
+        }
+
+        .students-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .students-header h2 {
+            font-size: 1.8rem;
+            color: #1f2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-add-student {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-add-student:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-icon-wrapper {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-info h3 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: #111827;
+            font-weight: 700;
+        }
+
+        .stat-info p {
+            margin: 2px 0 0 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .bg-blue-soft {
+            background-color: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .bg-green-soft {
+            background-color: #ecfdf5;
+            color: #10b981;
+        }
+
+        .bg-purple-soft {
+            background-color: #f5f3ff;
+            color: #8b5cf6;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        .filter-select {
+            min-width: 180px;
+            padding: 10px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: inherit;
+            background-color: white;
+        }
+
+        /* Students Table */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow-x: auto;
+        }
+
+        .students-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .students-table th {
+            text-align: right;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #4b5563;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background-color: #f9fafb;
+        }
+
+        .students-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+            color: #1f2937;
+        }
+
+        .students-table tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .student-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #e5e7eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #4b5563;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .student-info h4 {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #111827;
+        }
+
+        .student-info span {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        /* Progress Bar */
+        .progress-wrapper {
+            width: 100%;
+            max-width: 150px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            border-radius: 4px;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: #6b7280;
+            display: block;
+            text-align: left;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-completed {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-inactive {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 4px;
+        }
+
+        .btn-edit {
+            color: #2563eb;
+            background-color: #dbeafe;
+            /* Light Blue */
+        }
+
+        .btn-edit:hover {
+            background-color: #bfdbfe;
+            transform: scale(1.1);
+        }
+
+        .btn-delete {
+            color: #ef4444;
+            background-color: #fee2e2;
+            /* Light Red */
+        }
+
+        .btn-delete:hover {
+            background-color: #fecaca;
+            transform: scale(1.1);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: flex-start;
+            /* Changed from center to allow scrolling */
+            justify-content: center;
+            overflow-y: auto;
+            /* Enable scrolling for the modal itself */
+            padding: 40px 20px;
+            /* Add padding to prevent content hugging edges */
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* Close Button Style (Unified) */
+        .btn-close {
+            background: none;
+            border: none;
+            width: 30px;
+            height: 30px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            padding: 0;
+        }
+
+        .btn-close:hover {
+            color: #ef4444;
+            transform: scale(1.2);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar" id="sidebar">
+        <!-- Sidebar content loaded dynamically -->
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <button class="menu-toggle" id="menuToggle">☰</button>
+            <h1 class="page-title">إدارة الطلاب</h1>
+        </header>
+
+        <div class="dashboard">
+            <div class="students-header">
+                <h2>🎓 قائمة الطلاب المسجلين</h2>
+                <button class="btn-add-student" onclick="openStudentModal()">
+                    <span>➕</span> تسجيل طالب جديد
+                </button>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon-wrapper bg-blue-soft">👥</div>
+                    <div class="stat-info">
+                        <h3 id="totalStudents">0</h3>
+                        <p>إجمالي الطلاب</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon-wrapper bg-green-soft">✅</div>
+                    <div class="stat-info">
+                        <h3 id="activeStudents">0</h3>
+                        <p>طلاب نشطين</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon-wrapper bg-purple-soft">📚</div>
+                    <div class="stat-info">
+                        <h3 id="totalCoursesEnrolled">0</h3>
+                        <p>تسجيلات الكورسات</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filter-section">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="بحث باسم الطالب أو البريد..."
+                        onkeyup="filterStudents()">
+                </div>
+                <select class="filter-select" id="courseFilter" onchange="filterStudents()">
+                    <option value="">جميع الكورسات</option>
+                    <option value="python">البرمجة بلغة Python</option>
+                    <option value="web">تطوير الويب</option>
+                    <option value="design">التصميم الجرافيكي</option>
+                </select>
+                <select class="filter-select" id="statusFilter" onchange="filterStudents()">
+                    <option value="">جميع الحالات</option>
+                    <option value="active">نشط</option>
+                    <option value="completed">مكتمل</option>
+                    <option value="inactive">متوقف</option>
+                </select>
+            </div>
+
+            <!-- Students Table -->
+            <div class="table-container">
+                <table class="students-table">
+                    <thead>
+                        <tr>
+                            <th>الطالب</th>
+                            <th>الكورس المسجل</th>
+                            <th>تاريخ التسجيل</th>
+                            <th>التقدم</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTableBody">
+                        <!-- Data will be populated via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Student Modal -->
+    <div class="modal" id="studentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">تسجيل طالب جديد</h2>
+                <button class="btn-close" onclick="closeStudentModal()">&times;</button>
+            </div>
+            <form id="studentForm">
+                <input type="hidden" id="studentId">
+                <div class="form-group">
+                    <label>اسم الطالب</label>
+                    <input type="text" id="studentName" required placeholder="الاسم الكامل">
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="studentEmail" required placeholder="example@email.com">
+                </div>
+                <div class="form-group">
+                    <label>الكورس</label>
+                    <select id="studentCourse" required>
+                        <option value="python">البرمجة بلغة Python</option>
+                        <option value="web">تطوير الويب</option>
+                        <option value="design">التصميم الجرافيكي</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>تاريخ التسجيل</label>
+                    <input type="date" id="studentDate" required>
+                </div>
+                <div class="form-group">
+                    <label>التقدم (%)</label>
+                    <input type="number" id="studentProgress" min="0" max="100" value="0">
+                </div>
+                <div class="form-group">
+                    <label>الحالة</label>
+                    <select id="studentStatus">
+                        <option value="active">نشط</option>
+                        <option value="completed">مكتمل</option>
+                        <option value="inactive">متوقف</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%">حفظ البيانات</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="teacher.js?v=4"></script>
+    <script>
+        // Mock Data & Local Storage Logic
+        let students = [];
+
+        function initStudents() {
+            const saved = localStorage.getItem('teacher_students');
+            if (saved) {
+                students = JSON.parse(saved);
+            } else {
+                students = [
+                    { id: 1, name: "أحمد علي", email: "ahmed@example.com", course: "python", courseName: "البرمجة بلغة Python", date: "2024-01-15", progress: 75, status: "active", avatar: "أ" },
+                    { id: 2, name: "سارة محمد", email: "sara@example.com", course: "web", courseName: "تطوير الويب", date: "2024-02-01", progress: 30, status: "active", avatar: "س" },
+                    { id: 3, name: "خالد عمر", email: "khaled@example.com", course: "python", courseName: "البرمجة بلغة Python", date: "2023-12-20", progress: 100, status: "completed", avatar: "خ" },
+                    { id: 4, name: "منى يوسف", email: "mona@example.com", course: "design", courseName: "التصميم الجرافيكي", date: "2024-01-10", progress: 0, status: "inactive", avatar: "م" },
+                ];
+                saveStudents();
+            }
+            renderStudents();
+            updateStats();
+        }
+
+        function saveStudents() {
+            localStorage.setItem('teacher_students', JSON.stringify(students));
+        }
+
+        function renderStudents(filteredData = null) {
+            const data = filteredData || students;
+            const tbody = document.getElementById('studentsTableBody');
+
+            tbody.innerHTML = data.map(s => `
+                <tr>
+                    <td>
+                        <div class="student-profile">
+                            <div class="avatar">${s.avatar}</div>
+                            <div class="student-info">
+                                <h4>${s.name}</h4>
+                                <span>${s.email}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${s.courseName}</td>
+                    <td>${s.date}</td>
+                    <td>
+                        <div class="progress-wrapper">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${s.progress}%"></div>
+                            </div>
+                            <span class="progress-text">${s.progress}% مكتمل</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-${s.status}">
+                            ${getStatusLabel(s.status)}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-btn btn-edit" onclick="editStudent(${s.id})" title="تعديل">✏️</button>
+                        <button class="action-btn btn-delete" onclick="deleteStudent(${s.id})" title="حذف">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'active': 'نشط',
+                'completed': 'مكتمل',
+                'inactive': 'متوقف'
+            };
+            return labels[status] || status;
+        }
+
+        function updateStats() {
+            document.getElementById('totalStudents').textContent = students.length;
+            document.getElementById('activeStudents').textContent = students.filter(s => s.status === 'active').length;
+            document.getElementById('totalCoursesEnrolled').textContent = students.length; // Simply count of enrollments for now
+        }
+
+        // Filter Function
+        function filterStudents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const courseFilter = document.getElementById('courseFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            const filtered = students.filter(s => {
+                const matchSearch = s.name.toLowerCase().includes(searchTerm) || s.email.toLowerCase().includes(searchTerm);
+                const matchCourse = courseFilter ? s.course === courseFilter : true;
+                const matchStatus = statusFilter ? s.status === statusFilter : true;
+                return matchSearch && matchCourse && matchStatus;
+            });
+
+            renderStudents(filtered);
+        }
+
+        // Modal Functions
+        function openStudentModal() {
+            document.getElementById('modalTitle').textContent = 'تسجيل طالب جديد';
+            document.getElementById('studentForm').reset();
+            document.getElementById('studentId').value = '';
+            // Set default date to today
+            document.getElementById('studentDate').valueAsDate = new Date();
+            document.getElementById('studentModal').classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('studentModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        function editStudent(id) {
+            const student = students.find(s => s.id === id);
+            if (student) {
+                document.getElementById('modalTitle').textContent = 'تعديل بيانات الطالب';
+                document.getElementById('studentId').value = student.id;
+                document.getElementById('studentName').value = student.name;
+                document.getElementById('studentEmail').value = student.email;
+                document.getElementById('studentCourse').value = student.course;
+                document.getElementById('studentDate').value = student.date;
+                document.getElementById('studentProgress').value = student.progress;
+                document.getElementById('studentStatus').value = student.status;
+                document.getElementById('studentModal').classList.add('active');
+            }
+        }
+
+        function deleteStudent(id) {
+            if (confirm('هل أنت متأكد من حذف هذا الطالب؟')) {
+                students = students.filter(s => s.id !== id);
+                saveStudents();
+                renderStudents();
+                updateStats();
+            }
+        }
+
+        // Form Submit
+        document.getElementById('studentForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const id = document.getElementById('studentId').value;
+            const name = document.getElementById('studentName').value;
+            const email = document.getElementById('studentEmail').value;
+            const courseSelect = document.getElementById('studentCourse');
+            const course = courseSelect.value;
+            const courseName = courseSelect.options[courseSelect.selectedIndex].text;
+            const date = document.getElementById('studentDate').value;
+            const progress = document.getElementById('studentProgress').value;
+            const status = document.getElementById('studentStatus').value;
+
+            if (id) {
+                // Edit
+                const index = students.findIndex(s => s.id == id);
+                if (index !== -1) {
+                    students[index] = {
+                        ...students[index],
+                        name, email, course, courseName, date, progress, status,
+                        avatar: name.charAt(0)
+                    };
+                }
+            } else {
+                // Add
+                const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
+                students.push({
+                    id: newId,
+                    name, email, course, courseName, date, progress, status,
+                    avatar: name.charAt(0)
+                });
+            }
+
+            saveStudents();
+            renderStudents();
+            updateStats();
+            closeStudentModal();
+        });
+
+        // Initialize
+        initStudents();
+    </script>
+</body>
+
+</html>
