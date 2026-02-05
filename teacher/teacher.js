@@ -292,19 +292,22 @@ async function submitCourseForm(event) {
         description: document.getElementById('courseDescription').value,
         instructor: document.getElementById('courseInstructor').value,
         thumbnail_url: document.getElementById('courseThumbnail').value,
-        duration: document.getElementById('courseDuration').value,
+        duration: document.getElementById('courseDuration').value, // Handled by backend map
         requirements: document.getElementById('courseRequirements').value,
         extra_content: document.getElementById('courseExtraContent').value,
         price: parseFloat(document.getElementById('coursePrice').value) || 0,
         category: document.getElementById('courseCategory').value
     };
 
+    console.log('Sending course data:', courseData);
+
     try {
         if (courseId) {
             await api.updateCourse(courseId, courseData);
             alert('تم تحديث الكورس بنجاح!');
         } else {
-            await api.createCourse(courseData);
+            const result = await api.createCourse(courseData);
+            console.log('Course created successfully:', result);
             alert('تم إضافة الكورس بنجاح!');
         }
 
