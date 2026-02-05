@@ -360,11 +360,20 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSidebar(); // Initializing dynamic sidebar first
     checkTeacherAuth();
 
-    const page = window.location.pathname.split('/').pop();
-    if (page === 'index.html' || page === '') {
+    // Normalize page name
+    let page = window.location.pathname.split('/').pop();
+    if (page.includes('?')) page = page.split('?')[0];
+    if (page.includes('#')) page = page.split('#')[0];
+    const pageName = page.replace('.html', '');
+
+    if (pageName === 'index' || pageName === '') {
         loadTeacherStats();
-    } else if (page === 'courses.html') {
+    } else if (pageName === 'courses') {
         loadTeacherCourses();
+    } else if (pageName === 'students') {
+        // loadTeacherStudents(); // Future implementation
+    } else if (pageName === 'profile') {
+        // loadTeacherProfile(); // Future implementation
     }
 
     // Lesson Form Listener
