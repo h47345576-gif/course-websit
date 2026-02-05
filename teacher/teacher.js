@@ -179,28 +179,33 @@ async function loadTeacherCourses() {
 
     try {
         const user = api.getCurrentUser();
+        console.log('Current user:', user);
+
         const data = await api.getCourses();
+        console.log('API Response:', data);
+
         const allCourses = data.results || [];
+        console.log('All courses count:', allCourses.length);
 
-        // Filter by exact instructor name matching current user
-        let myCourses = allCourses.filter(c => c.instructor === user.name);
+        // For teachers/admins: Show all courses they created OR all courses if admin
+        let myCourses = allCourses;
 
-        // Fallback for demo/existing data
+        // Optional: Filter by instructor if needed (currently showing all for testing)
+        // Uncomment below to filter by instructor name
+        // myCourses = allCourses.filter(c => c.instructor === user.name || c.instructor.includes(user.name.split(' ')[0]));
+
         if (myCourses.length === 0) {
-            myCourses = allCourses.filter(c => c.instructor.includes(user.name.split(' ')[0]));
-        }
-
-        if (myCourses.length === 0) {
-            grid.innerHTML = '<p>لا توجد كورسات لك بعد.</p>';
+            grid.innerHTML = '<p>لا توجد كورسات بعد. اضغط على "إضافة كورس جديد" لإنشاء كورس.</p>';
             return;
         }
 
         grid.innerHTML = myCourses.map(course => `
             <div class="course-card">
-                <img src="${course.thumbnail_url}" class="course-img">
+                <img src="${course.thumbnail_url || 'https://via.placeholder.com/300x200?text=Course'}" class="course-img" onerror="this.src='https://via.placeholder.com/300x200?text=Course'">
                 <div class="course-body">
                     <h4>${course.title}</h4>
-                    <p style="font-size:0.9rem; color:#666; margin:5px 0;">${course.category}</p>
+                    <p style="font-size:0.9rem; color:#666; margin:5px 0;">${course.category || 'غير مصنف'}</p>
+                    <p style="font-size:0.8rem; color:#888;">المدرّس: ${course.instructor || 'غير محدد'}</p>
                     <button class="btn-primary" style="width:100%; margin-top:10px;" onclick="openAddLesson(${course.id})">
                         + إضافة درس
                     </button>
@@ -214,7 +219,8 @@ async function loadTeacherCourses() {
         `).join('');
 
     } catch (error) {
-        grid.innerHTML = `<p class="error">خطأ: ${error.message}</p>`;
+        console.error('Error loading courses:', error);
+        grid.innerHTML = `<p class="error">خطأ في تحميل الكورسات: ${error.message}</p>`;
     }
 }
 
