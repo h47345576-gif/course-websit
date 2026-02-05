@@ -21,10 +21,19 @@ function renderSidebar() {
     const sidebar = document.getElementById('sidebar');
     if (!sidebar) return;
 
+    // Robust page detection
     const path = window.location.pathname;
-    const page = path.split('/').pop();
-    // Normalize page name: remove .html and handle empty string as index
-    const currentPageName = page.replace('.html', '') || 'index';
+    let page = path.split('/').pop();
+
+    // Handle URL parameters or hashes
+    if (page.includes('?')) page = page.split('?')[0];
+    if (page.includes('#')) page = page.split('#')[0];
+
+    // Handle trailing slash or empty path
+    if (page === '') page = 'index.html';
+
+    // Normalize to page name without extension
+    const currentPageName = page.replace('.html', '');
 
     const menuItems = [
         { name: 'الرئيسية', icon: '📊', link: 'index.html' },
@@ -35,6 +44,7 @@ function renderSidebar() {
 
     const menuHtml = menuItems.map(item => {
         const itemPageName = item.link.replace('.html', '');
+        // Check exact match or if current page implies this item (e.g. sub-pages)
         const isActive = currentPageName === itemPageName;
 
         return `
@@ -63,6 +73,43 @@ function renderSidebar() {
             </button>
         </div>
     `;
+
+    // Mobile Menu Toggle Logic
+    setupMobileMenu();
+}
+
+function setupMobileMenu() {
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+
+    // Remove existing listeners to avoid duplicates if re-rendered
+    const newToggle = menuToggle?.cloneNode(true);
+    if (menuToggle && newToggle) {
+        menuToggle.parentNode.replaceChild(newToggle, menuToggle);
+
+        newToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+    }
+
+    // Close when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 992 &&
+            sidebar.classList.contains('active') &&
+            !sidebar.contains(e.target) &&
+            extractMenuToggle(e.target) !== newToggle) {
+
+            // Helper to check if target is toggle or child of toggle
+            function extractMenuToggle(el) {
+                return el.closest('#menuToggle');
+            }
+
+            // If click is not on toggle button
+            if (!e.target.closest('#menuToggle')) {
+                sidebar.classList.remove('active');
+            }
+        }
+    });
 }
 
 // Logic for Index Page
