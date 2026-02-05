@@ -293,11 +293,49 @@ async function submitCourseForm(event) {
     const form = event.target;
     const courseId = document.getElementById('editCourseId').value;
 
+    // Handle Image Upload
+    const fileInput = document.getElementById('courseThumbnailFile');
+    let thumbnailUrl = document.getElementById('courseThumbnail').value.trim();
+
+    // If a file is selected, try to upload it
+    if (fileInput && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const uploadBtn = form.querySelector('button[type="submit"]');
+            const originalText = uploadBtn.textContent;
+            uploadBtn.textContent = 'جاري رفع الصورة...';
+            uploadBtn.disabled = true;
+
+            const uploadResponse = await api.request('/courses/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (uploadResponse && uploadResponse.url) {
+                thumbnailUrl = uploadResponse.url;
+            }
+
+            uploadBtn.textContent = originalText;
+            uploadBtn.disabled = false;
+        } catch (error) {
+            console.warn('Image upload failed, using URL or default:', error.message);
+            // Don't return - continue with URL or default
+            const uploadBtn = form.querySelector('button[type="submit"]');
+            if (uploadBtn) {
+                uploadBtn.textContent = 'حفظ';
+                uploadBtn.disabled = false;
+            }
+        }
+    }
+
     const courseData = {
         title: document.getElementById('courseTitle').value,
         description: document.getElementById('courseDescription').value,
         instructor: document.getElementById('courseInstructor').value,
-        thumbnail_url: document.getElementById('courseThumbnail').value,
+        thumbnail_url: thumbnailUrl,
         duration: document.getElementById('courseDuration').value, // Handled by backend map
         requirements: document.getElementById('courseRequirements').value,
         extra_content: document.getElementById('courseExtraContent').value,

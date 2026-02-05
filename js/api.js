@@ -34,10 +34,15 @@ class ApiService {
     // Make API request
     async request(endpoint, options = {}) {
         const url = this.baseUrl + endpoint;
+
         const headers = {
-            'Content-Type': 'application/json',
-            ...options.headers,
+            ...options.headers
         };
+
+        // Only set JSON content type if not FormData
+        if (!(options.body instanceof FormData)) {
+            headers['Content-Type'] = 'application/json';
+        }
 
         // Add auth token if available
         const token = this.getToken();
