@@ -16,6 +16,56 @@ function logout() {
     window.location.href = '../index.html';
 }
 
+// Sidebar Rendering Logic
+function renderSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+
+    const path = window.location.pathname;
+    const page = path.split('/').pop();
+    // Normalize page name: remove .html and handle empty string as index
+    const currentPageName = page.replace('.html', '') || 'index';
+
+    const menuItems = [
+        { name: 'الرئيسية', icon: '📊', link: 'index.html' },
+        { name: 'كورساتي', icon: '📚', link: 'courses.html' },
+        { name: 'طلابي', icon: '👥', link: 'students.html' },
+        { name: 'الملف الشخصي', icon: '👤', link: 'profile.html' }
+    ];
+
+    const menuHtml = menuItems.map(item => {
+        const itemPageName = item.link.replace('.html', '');
+        const isActive = currentPageName === itemPageName;
+
+        return `
+        <a href="${item.link}" class="nav-item ${isActive ? 'active' : ''}">
+            <span class="nav-icon">${item.icon}</span>
+            <span>${item.name}</span>
+        </a>
+    `}).join('');
+
+    sidebar.innerHTML = `
+        <div class="sidebar-header">
+            <span class="logo-icon">👨‍🏫</span>
+            <span class="logo-text">لوحة المعلم</span>
+        </div>
+        <nav class="sidebar-nav">
+            ${menuHtml}
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html" class="nav-item">
+                <span class="nav-icon">🌐</span>
+                <span>عرض الموقع</span>
+            </a>
+            <button class="nav-item logout-btn" onclick="logout()">
+                <span class="nav-icon">🚪</span>
+                <span>تسجيل الخروج</span>
+            </button>
+        </div>
+    `;
+}
+
+// Logic for Index Page
 // Logic for Index Page
 async function loadTeacherStats() {
     const coursesCountEl = document.getElementById('myCoursesCount');
@@ -102,6 +152,10 @@ async function loadTeacherCourses() {
                     <button class="btn-primary" style="width:100%; margin-top:10px;" onclick="openAddLesson(${course.id})">
                         + إضافة درس
                     </button>
+                    <div class="course-actions">
+                        <button class="btn-action btn-edit" onclick="editCourse(${course.id})">تعديل</button>
+                        <button class="btn-action btn-delete" onclick="deleteCourse(${course.id})">حذف</button>
+                    </div>
                     <a href="../course.html?id=${course.id}" class="btn-link" style="display:block; text-align:center; margin-top:5px;">عرض الكورس</a>
                 </div>
             </div>
@@ -109,6 +163,103 @@ async function loadTeacherCourses() {
 
     } catch (error) {
         grid.innerHTML = `<p class="error">خطأ: ${error.message}</p>`;
+    }
+}
+
+// Course Modal Functions
+function openAddCourseModal() {
+    document.getElementById('courseModalTitle').textContent = 'إضافة كورس جديد';
+    document.getElementById('courseForm').reset();
+    document.getElementById('editCourseId').value = '';
+
+    // Set default instructor to current user
+    const user = api.getCurrentUser();
+    if (user) {
+        document.getElementById('courseInstructor').value = user.name;
+    }
+
+    document.getElementById('courseModal').classList.add('active');
+    document.body.classList.add('modal-open');
+}
+
+function closeCourseModal() {
+    document.getElementById('courseModal').classList.remove('active');
+    document.body.classList.remove('modal-open');
+    document.getElementById('courseForm').reset();
+    document.getElementById('editCourseId').value = '';
+}
+
+async function editCourse(courseId) {
+    try {
+        const data = await api.getCourses();
+        const course = (data.results || []).find(c => c.id === courseId);
+
+        if (course) {
+            document.getElementById('courseModalTitle').textContent = 'تعديل الكورس';
+            document.getElementById('editCourseId').value = courseId;
+            document.getElementById('courseTitle').value = course.title || '';
+            document.getElementById('courseDescription').value = course.description || '';
+            document.getElementById('courseInstructor').value = course.instructor || '';
+            document.getElementById('courseThumbnail').value = course.thumbnail_url || '';
+            document.getElementById('courseDuration').value = course.duration || '';
+            document.getElementById('courseRequirements').value = course.requirements || '';
+            document.getElementById('courseExtraContent').value = course.extra_content || '';
+            document.getElementById('coursePrice').value = course.price || 0;
+            document.getElementById('courseCategory').value = course.category || 'برمجة';
+
+            document.getElementById('courseModal').classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+    } catch (error) {
+        alert('خطأ في تحميل بيانات الكورس: ' + error.message);
+    }
+}
+
+async function deleteCourse(courseId) {
+    if (!confirm('هل أنت متأكد من حذف هذا الكورس؟ لا يمكن التراجع عن هذا الإجراء.')) {
+        return;
+    }
+
+    try {
+        await api.deleteCourse(courseId);
+        alert('تم حذف الكورس بنجاح!');
+        loadTeacherCourses();
+    } catch (error) {
+        alert('خطأ في حذف الكورس: ' + error.message);
+    }
+}
+
+async function submitCourseForm(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const courseId = document.getElementById('editCourseId').value;
+
+    const courseData = {
+        title: document.getElementById('courseTitle').value,
+        description: document.getElementById('courseDescription').value,
+        instructor: document.getElementById('courseInstructor').value,
+        thumbnail_url: document.getElementById('courseThumbnail').value,
+        duration: document.getElementById('courseDuration').value,
+        requirements: document.getElementById('courseRequirements').value,
+        extra_content: document.getElementById('courseExtraContent').value,
+        price: parseFloat(document.getElementById('coursePrice').value) || 0,
+        category: document.getElementById('courseCategory').value
+    };
+
+    try {
+        if (courseId) {
+            await api.updateCourse(courseId, courseData);
+            alert('تم تحديث الكورس بنجاح!');
+        } else {
+            await api.createCourse(courseData);
+            alert('تم إضافة الكورس بنجاح!');
+        }
+
+        closeCourseModal();
+        loadTeacherCourses();
+    } catch (error) {
+        alert('خطأ: ' + error.message);
     }
 }
 
@@ -124,6 +275,7 @@ function closeLessonModal() {
 
 // Init
 document.addEventListener('DOMContentLoaded', () => {
+    renderSidebar(); // Initializing dynamic sidebar first
     checkTeacherAuth();
 
     const page = window.location.pathname.split('/').pop();
@@ -133,10 +285,13 @@ document.addEventListener('DOMContentLoaded', () => {
         loadTeacherCourses();
     }
 
-    // Form Listener
+    // Lesson Form Listener
     document.getElementById('addLessonForm')?.addEventListener('submit', (e) => {
         e.preventDefault();
         alert('سيتم إضافة الدرس قريباً! (يحتاج endpoint في API)');
         closeLessonModal();
     });
+
+    // Course Form Listener
+    document.getElementById('courseForm')?.addEventListener('submit', submitCourseForm);
 });

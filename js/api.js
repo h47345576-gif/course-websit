@@ -120,6 +120,27 @@ class ApiService {
             method: 'POST',
         });
     }
+
+    // Course Management Methods (Admin/Teacher)
+    async createCourse(courseData) {
+        return this.request(CONFIG.ENDPOINTS.COURSES, {
+            method: 'POST',
+            body: JSON.stringify(courseData),
+        });
+    }
+
+    async updateCourse(id, courseData) {
+        return this.request(`${CONFIG.ENDPOINTS.COURSES}/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(courseData),
+        });
+    }
+
+    async deleteCourse(id) {
+        return this.request(`${CONFIG.ENDPOINTS.COURSES}/${id}`, {
+            method: 'DELETE',
+        });
+    }
 }
 
 // Create global API instance

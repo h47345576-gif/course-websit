@@ -10,32 +10,14 @@
 
 <body>
     <aside class="sidebar" id="sidebar">
-        <!-- Sidebar content same as index.html -->
-        <div class="sidebar-header">
-            <span class="logo-icon">👨‍🏫</span>
-            <span class="logo-text">لوحة المعلم</span>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="index.html" class="nav-item">
-                <span class="nav-icon">📊</span>
-                <span>الرئيسية</span>
-            </a>
-            <a href="courses.html" class="nav-item active">
-                <span class="nav-icon">📚</span>
-                <span>كورساتي</span>
-            </a>
-            <a href="students.html" class="nav-item">
-                <span class="nav-icon">👥</span>
-                <span>طلابي</span>
-            </a>
-        </nav>
+        <!-- Sidebar content loaded dynamically -->
     </aside>
 
     <main class="main-content">
         <header class="header">
             <button class="menu-toggle" id="menuToggle">☰</button>
             <h1 class="page-title">كورساتي</h1>
-            <button class="btn-primary" onclick="alert('تواصل مع الإدارة لإنشاء كورس جديد')">طلب كورس جديد</button>
+            <button class="btn-primary" onclick="openAddCourseModal()">+ إضافة كورس جديد</button>
         </header>
 
         <div class="dashboard">
@@ -49,7 +31,10 @@
     <!-- Modal for adding lessons -->
     <div class="modal" id="addLessonModal">
         <div class="modal-content">
-            <h2>إضافة درس جديد</h2>
+            <div class="modal-header">
+                <h2>إضافة درس جديد</h2>
+                <button class="btn-close" onclick="closeLessonModal()">&times;</button>
+            </div>
             <form id="addLessonForm">
                 <input type="hidden" id="courseIdField">
                 <div class="form-group">
@@ -79,6 +64,65 @@
         </div>
     </div>
 
+    <!-- Modal for adding/editing courses -->
+    <div class="modal" id="courseModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 id="courseModalTitle">إضافة كورس جديد</h2>
+                <button class="btn-close" onclick="closeCourseModal()">&times;</button>
+            </div>
+            <form id="courseForm">
+                <input type="hidden" id="editCourseId">
+                <div class="form-group">
+                    <label>عنوان الكورس</label>
+                    <input type="text" id="courseTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea id="courseDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>اسم المدرّس</label>
+                    <input type="text" id="courseInstructor" placeholder="أدخل اسم المدرّس">
+                </div>
+                <div class="form-group">
+                    <label>رابط صورة الكورس</label>
+                    <input type="url" id="courseThumbnail" placeholder="https://example.com/image.jpg">
+                </div>
+                <div class="form-group">
+                    <label>مدة الكورس</label>
+                    <input type="text" id="courseDuration" placeholder="مثال: 10 ساعات">
+                </div>
+                <div class="form-group">
+                    <label>المتطلبات المسبقة</label>
+                    <input type="text" id="courseRequirements" placeholder="مثال: معرفة أساسية بالبرمجة">
+                </div>
+                <div class="form-group">
+                    <label>محتوى إضافي</label>
+                    <input type="text" id="courseExtraContent" placeholder="أدخل محتوى إضافي للكورس">
+                </div>
+                <div class="form-group">
+                    <label>السعر (ل.س)</label>
+                    <input type="number" id="coursePrice" value="0">
+                </div>
+                <div class="form-group">
+                    <label>التصنيف</label>
+                    <select id="courseCategory">
+                        <option value="برمجة">برمجة</option>
+                        <option value="تصميم">تصميم</option>
+                        <option value="لغات">لغات</option>
+                        <option value="أكاديمي">أكاديمي</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn-primary" style="flex: 1">حفظ</button>
+                    <button type="button" class="btn-link" onclick="closeCourseModal()"
+                        style="flex: 1; background: var(--light); border-radius: 8px;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
     <script src="teacher.js"></script>
@@ -94,6 +138,11 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
         }
 
         .course-img {
@@ -114,12 +163,19 @@
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.5);
-            align-items: center;
+            z-index: 1000;
+            align-items: flex-start;
             justify-content: center;
+            overflow-y: auto;
+            padding: 40px 20px;
         }
 
         .modal.active {
             display: flex;
+        }
+
+        body.modal-open {
+            overflow: hidden;
         }
 
         .modal-content {
@@ -128,6 +184,97 @@
             border-radius: 12px;
             width: 100%;
             max-width: 400px;
+            max-height: none;
+            margin: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            width: 30px;
+            height: 30px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            padding: 0;
+        }
+
+        .btn-close:hover {
+            color: #ef4444;
+            transform: scale(1.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            background-color: #fff;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .course-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-edit {
+            background: #e0e7ff;
+            color: #6366f1;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #ef4444;
         }
     </style>
 </body>
