@@ -6,6 +6,310 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الإعدادات | لوحة التحكم</title>
     <link rel="stylesheet" href="admin.css">
+    <style>
+        .settings-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .settings-section h3 {
+            color: #1e1e2e;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #6366f1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-section h3 .icon {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: #fff;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-group .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            right: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #10b981;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(-24px);
+        }
+
+        .toggle-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        /* Payment Methods Cards */
+        .payment-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .payment-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .payment-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .payment-card-header .icon {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .payment-card-header h4 {
+            margin: 0;
+            color: #1e1e2e;
+        }
+
+        .payment-card .form-group {
+            min-width: 100%;
+        }
+
+        /* QR Section */
+        .qr-upload-section {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .qr-upload-box {
+            width: 220px;
+            text-align: center;
+        }
+
+        .qr-preview {
+            width: 200px;
+            height: 200px;
+            background: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .qr-preview:hover {
+            border-color: #6366f1;
+            background: #f0f0ff;
+        }
+
+        .qr-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+
+        .qr-preview span {
+            font-size: 2.5rem;
+        }
+
+        .qr-preview p {
+            color: #6b7280;
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .upload-btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .upload-btn:hover {
+            background: #4f46e5;
+        }
+
+        /* Save Button */
+        .save-section {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 1px solid #86efac;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .save-section p {
+            margin: 0;
+            color: #166534;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h2 {
+            font-size: 1.8rem;
+            color: #1e1e2e;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        #qrInput {
+            display: none;
+        }
+
+        .phone-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .phone-input-group select {
+            width: 140px;
+            flex-shrink: 0;
+        }
+
+        .phone-input-group input {
+            flex: 1;
+        }
+    </style>
 </head>
 
 <body>
@@ -55,33 +359,379 @@
         </header>
 
         <div class="dashboard">
-            <h2>إعدادات المنصة</h2>
-            <br>
-            <h3>الإعدادات العامة</h3>
-            <p>اسم المنصة: منصة التعلم</p>
-            <p>البريد الإلكتروني للدعم: support@platform.com</p>
-            <p>اللغة الافتراضية: العربية</p>
-            <br>
-            <h3>إعدادات الدفع</h3>
-            <p>العملة: ليرة سورية (ل.س)</p>
-            <p>طريقة الدفع: تحويل بنكي / نقدي</p>
-            <p>نسبة الخصم للطلاب: 10%</p>
-            <br>
-            <h3>إعدادات الأمان</h3>
-            <p>التحقق بخطوتين: غير مفعل</p>
-            <p>مدة صلاحية الجلسة: 7 أيام</p>
-            <p>الحد الأقصى لمحاولات تسجيل الدخول: 5 محاولات</p>
-            <br>
-            <h3>إعدادات الإشعارات</h3>
-            <p>إشعارات البريد الإلكتروني: مفعل</p>
-            <p>إشعارات التسجيل الجديد: مفعل</p>
-            <p>إشعارات المدفوعات: مفعل</p>
+            <div class="page-header">
+                <h2>⚙️ إعدادات المنصة</h2>
+                <p>إدارة إعدادات المنصة وطرق الدفع والأمان</p>
+            </div>
+
+            <form id="settingsForm">
+                <!-- General Settings -->
+                <div class="settings-section">
+                    <h3><span class="icon">🏢</span> الإعدادات العامة</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>اسم المنصة</label>
+                            <input type="text" name="platform_name" value="منصة التعلم" placeholder="أدخل اسم المنصة">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني للدعم</label>
+                            <input type="email" name="support_email" value="support@platform.com"
+                                placeholder="أدخل البريد الإلكتروني">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>اللغة الافتراضية</label>
+                            <select name="default_language">
+                                <option value="ar" selected>العربية</option>
+                                <option value="en">English</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم الهاتف للتواصل</label>
+                            <div class="phone-input-group">
+                                <input type="text" list="countryCodesList" name="country_code" value="+963"
+                                    placeholder="رمز الدولة" class="country-code-input">
+                                <datalist id="countryCodesList">
+                                    <option value="+963">🇸🇾 سوريا +963</option>
+                                    <option value="+966">🇸🇦 السعودية +966</option>
+                                    <option value="+971">🇦🇪 الإمارات +971</option>
+                                    <option value="+965">🇰🇼 الكويت +965</option>
+                                    <option value="+974">🇶🇦 قطر +974</option>
+                                    <option value="+973">🇧🇭 البحرين +973</option>
+                                    <option value="+968">🇴🇲 عُمان +968</option>
+                                    <option value="+962">🇯🇴 الأردن +962</option>
+                                    <option value="+961">🇱🇧 لبنان +961</option>
+                                    <option value="+964">🇮🇶 العراق +964</option>
+                                    <option value="+20">🇪🇬 مصر +20</option>
+                                    <option value="+212">🇲🇦 المغرب +212</option>
+                                    <option value="+216">🇹🇳 تونس +216</option>
+                                    <option value="+213">🇩🇿 الجزائر +213</option>
+                                    <option value="+218">🇱🇾 ليبيا +218</option>
+                                    <option value="+249">🇸🇩 السودان +249</option>
+                                    <option value="+967">🇾🇪 اليمن +967</option>
+                                    <option value="+90">🇹🇷 تركيا +90</option>
+                                    <option value="+1">🇺🇸 أمريكا +1</option>
+                                    <option value="+44">🇬🇧 بريطانيا +44</option>
+                                    <option value="+49">🇩🇪 ألمانيا +49</option>
+                                    <option value="+33">🇫🇷 فرنسا +33</option>
+                                </datalist>
+                                <input type="tel" name="contact_phone" value="" placeholder="أدخل رقم الهاتف">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="settings-section">
+                    <h3><span class="icon">💳</span> طرق الدفع المتاحة</h3>
+                    <div class="payment-cards">
+                        <div class="payment-card">
+                            <div class="payment-card-header">
+                                <span class="icon">💵</span>
+                                <h4>شام كاش (Sham Cash)</h4>
+                            </div>
+                            <div class="form-group">
+                                <label>رقم الحساب</label>
+                                <input type="text" name="sham_cash_number" value="0912345678"
+                                    placeholder="أدخل رقم حساب شام كاش">
+                            </div>
+                            <div class="form-group toggle-switch">
+                                <label class="switch">
+                                    <input type="checkbox" name="sham_cash_enabled" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label">تفعيل شام كاش</span>
+                            </div>
+                        </div>
+
+                        <div class="payment-card">
+                            <div class="payment-card-header">
+                                <span class="icon">📱</span>
+                                <h4>MTN Cash</h4>
+                            </div>
+                            <div class="form-group">
+                                <label>رقم الحساب</label>
+                                <input type="text" name="mtn_cash_number" value="0933456789"
+                                    placeholder="أدخل رقم حساب MTN">
+                            </div>
+                            <div class="form-group toggle-switch">
+                                <label class="switch">
+                                    <input type="checkbox" name="mtn_cash_enabled" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label">تفعيل MTN Cash</span>
+                            </div>
+                        </div>
+
+                        <div class="payment-card">
+                            <div class="payment-card-header">
+                                <span class="icon">📲</span>
+                                <h4>Syriatel Cash</h4>
+                            </div>
+                            <div class="form-group">
+                                <label>رقم الحساب</label>
+                                <input type="text" name="syriatel_cash_number" value="0944567890"
+                                    placeholder="أدخل رقم حساب Syriatel">
+                            </div>
+                            <div class="form-group toggle-switch">
+                                <label class="switch">
+                                    <input type="checkbox" name="syriatel_cash_enabled" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label">تفعيل Syriatel Cash</span>
+                            </div>
+                        </div>
+
+                        <div class="payment-card">
+                            <div class="payment-card-header">
+                                <span class="icon">🏦</span>
+                                <h4>حوالات بنكية</h4>
+                            </div>
+                            <div class="form-group">
+                                <label>اسم البنك</label>
+                                <input type="text" name="bank_name" value="بنك سوريا الدولي الإسلامي"
+                                    placeholder="أدخل اسم البنك">
+                            </div>
+                            <div class="form-group">
+                                <label>رقم الحساب البنكي</label>
+                                <input type="text" name="bank_account_number" value="1234567890"
+                                    placeholder="أدخل رقم الحساب البنكي">
+                            </div>
+                            <div class="form-group toggle-switch">
+                                <label class="switch">
+                                    <input type="checkbox" name="bank_enabled" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label">تفعيل الحوالات البنكية</span>
+                            </div>
+                        </div>
+
+                        <div class="payment-card">
+                            <div class="payment-card-header">
+                                <span class="icon">💰</span>
+                                <h4>الدفع نقدي</h4>
+                            </div>
+                            <div class="form-group">
+                                <label>عنوان الاستلام</label>
+                                <input type="text" name="cash_address" value=""
+                                    placeholder="أدخل عنوان الاستلام النقدي">
+                            </div>
+                            <div class="form-group toggle-switch">
+                                <label class="switch">
+                                    <input type="checkbox" name="cash_enabled" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label">تفعيل الدفع نقدي</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QR Code -->
+                <div class="settings-section">
+                    <h3><span class="icon">📱</span> رمز QR للدفع السريع</h3>
+                    <div class="qr-upload-section">
+                        <div class="qr-upload-box">
+                            <div class="qr-preview" onclick="document.getElementById('qrInput').click()">
+                                <span>📷</span>
+                                <p>اضغط لرفع صورة QR</p>
+                            </div>
+                            <input type="file" id="qrInput" name="qr_image" accept="image/*">
+                            <button type="button" class="upload-btn"
+                                onclick="document.getElementById('qrInput').click()">📤 رفع صورة</button>
+                        </div>
+                        <div class="form-group" style="flex: 1; min-width: 250px;">
+                            <label>وصف رمز QR</label>
+                            <textarea name="qr_description" rows="4"
+                                placeholder="أدخل تعليمات أو وصف لاستخدام رمز QR">امسح الرمز باستخدام تطبيق الدفع الإلكتروني لإتمام عملية الدفع بسرعة وأمان.</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Settings -->
+                <div class="settings-section">
+                    <h3><span class="icon">💲</span> إعدادات الدفع</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>العملة</label>
+                            <select name="currency">
+                                <option value="SYP" selected>ليرة سورية (ل.س)</option>
+                                <option value="USD">دولار أمريكي ($)</option>
+                                <option value="EUR">يورو (€)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>نسبة الخصم للطلاب (%)</label>
+                            <input type="number" name="student_discount" value="10" min="0" max="100"
+                                placeholder="0-100">
+                        </div>
+                        <div class="form-group">
+                            <label>الحد الأدنى للدفع</label>
+                            <input type="number" name="min_payment" value="5000" placeholder="أدخل الحد الأدنى">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="settings-section">
+                    <h3><span class="icon">🔒</span> إعدادات الأمان</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>التحقق بخطوتين</label>
+                            <div class="toggle-switch">
+                                <label class="switch">
+                                    <input type="checkbox" name="two_factor_enabled">
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label">تفعيل التحقق بخطوتين</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>مدة صلاحية الجلسة (بالأيام)</label>
+                            <input type="number" name="session_duration" value="7" min="1" max="30"
+                                placeholder="1-30 يوم">
+                        </div>
+                        <div class="form-group">
+                            <label>الحد الأقصى لمحاولات تسجيل الدخول</label>
+                            <input type="number" name="max_login_attempts" value="5" min="1" max="10"
+                                placeholder="1-10">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="settings-section">
+                    <h3><span class="icon">🔔</span> إعدادات الإشعارات</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>إشعارات البريد الإلكتروني</label>
+                            <div class="toggle-switch">
+                                <label class="switch">
+                                    <input type="checkbox" name="email_notifications" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label">تفعيل إشعارات البريد</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>إشعارات التسجيل الجديد</label>
+                            <div class="toggle-switch">
+                                <label class="switch">
+                                    <input type="checkbox" name="new_registration_notifications" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label">تفعيل إشعارات التسجيل</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>إشعارات المدفوعات</label>
+                            <div class="toggle-switch">
+                                <label class="switch">
+                                    <input type="checkbox" name="payment_notifications" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label">تفعيل إشعارات المدفوعات</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="save-section">
+                    <p>💡 تأكد من مراجعة جميع الإعدادات قبل الحفظ</p>
+                    <button type="submit" class="btn-save">💾 حفظ الإعدادات</button>
+                </div>
+            </form>
         </div>
     </main>
 
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
     <script src="admin.js"></script>
+    <script>
+        // QR Preview
+        document.getElementById('qrInput').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const preview = document.querySelector('.qr-preview');
+                    preview.innerHTML = `<img src="${e.target.result}" alt="QR Code">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form Submit - Save to localStorage
+        document.getElementById('settingsForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const settings = {};
+
+            for (let [key, value] of formData.entries()) {
+                if (value instanceof File && value.size === 0) continue;
+                if (!(value instanceof File)) {
+                    settings[key] = value;
+                }
+            }
+
+            // Handle checkboxes (they don't send value if unchecked)
+            const checkboxes = this.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                settings[cb.name] = cb.checked;
+            });
+
+            // Save QR image if uploaded
+            const qrPreviewImg = document.querySelector('.qr-preview img');
+            if (qrPreviewImg) {
+                settings['qr_image_data'] = qrPreviewImg.src;
+            }
+
+            // Save to localStorage
+            localStorage.setItem('platform_settings', JSON.stringify(settings));
+
+            console.log('Settings saved:', settings);
+            alert('تم حفظ الإعدادات بنجاح! ✅');
+        });
+
+        // Load saved settings from localStorage
+        function loadSettings() {
+            const saved = localStorage.getItem('platform_settings');
+            if (saved) {
+                const settings = JSON.parse(saved);
+
+                // Restore all form fields
+                Object.keys(settings).forEach(key => {
+                    if (key === 'qr_image_data') return; // Handle separately
+
+                    const input = document.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        if (input.type === 'checkbox') {
+                            input.checked = settings[key] === true || settings[key] === 'true';
+                        } else if (input.tagName === 'SELECT') {
+                            input.value = settings[key];
+                        } else if (input.tagName === 'TEXTAREA') {
+                            input.value = settings[key];
+                        } else {
+                            input.value = settings[key];
+                        }
+                    }
+                });
+
+                // Restore QR image if saved
+                if (settings['qr_image_data']) {
+                    const preview = document.querySelector('.qr-preview');
+                    preview.innerHTML = `<img src="${settings['qr_image_data']}" alt="QR Code">`;
+                }
+
+                console.log('Settings loaded:', settings);
+            }
+        }
+
+        loadSettings();
+    </script>
 </body>
 
 </html>

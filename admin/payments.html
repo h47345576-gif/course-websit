@@ -6,6 +6,383 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مراجعة المدفوعات | لوحة التحكم</title>
     <link rel="stylesheet" href="admin.css">
+    <style>
+        .payments-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .payments-section h3 {
+            color: #1e1e2e;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #6366f1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .payments-section h3 .icon {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px 20px;
+            text-align: center;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card.success {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-color: #86efac;
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border-color: #fcd34d;
+        }
+
+        .stat-card.danger {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border-color: #fca5a5;
+        }
+
+        .stat-card.info {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-color: #93c5fd;
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1e1e2e;
+            line-height: 1;
+        }
+
+        .stat-unit {
+            color: #9ca3af;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Form Styles */
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: #fff;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Payments Table */
+        .payments-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .payments-table th,
+        .payments-table td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .payments-table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .payments-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #10b981;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .btn-action {
+            padding: 8px 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .btn-edit {
+            background: #dbeafe;
+            color: #2563eb;
+            margin-left: 5px;
+        }
+
+        .btn-edit:hover {
+            background: #bfdbfe;
+            transform: scale(1.1);
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+            transform: scale(1.1);
+        }
+
+        .actions-cell {
+            white-space: nowrap;
+        }
+
+        .btn-view {
+            background: #dcfce7;
+            color: #10b981;
+        }
+
+        .btn-view:hover {
+            background: #bbf7d0;
+        }
+
+        /* Add Payment Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: flex-start;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 550px;
+            margin: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #1e1e2e;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        .btn-close:hover {
+            color: #ef4444;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .page-header h2 {
+            font-size: 1.8rem;
+            color: #1e1e2e;
+            margin: 0;
+        }
+
+        .page-header p {
+            color: #6b7280;
+            font-size: 1rem;
+            margin: 5px 0 0 0;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .filter-section .form-group {
+            min-width: 150px;
+        }
+
+        .btn-filter {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-filter:hover {
+            background: #4f46e5;
+        }
+    </style>
 </head>
 
 <body>
@@ -55,24 +432,344 @@
         </header>
 
         <div class="dashboard">
-            <h2>قائمة المدفوعات</h2>
-            <br>
-            <p>رقم العملية: #001 - المبلغ: 50,000 ل.س - الحالة: مكتمل - التاريخ: 2026-01-28</p>
-            <p>رقم العملية: #002 - المبلغ: 75,000 ل.س - الحالة: معلق - التاريخ: 2026-01-27</p>
-            <p>رقم العملية: #003 - المبلغ: 25,000 ل.س - الحالة: مكتمل - التاريخ: 2026-01-26</p>
-            <p>رقم العملية: #004 - المبلغ: 100,000 ل.س - الحالة: ملغي - التاريخ: 2026-01-25</p>
-            <p>رقم العملية: #005 - المبلغ: 45,000 ل.س - الحالة: مكتمل - التاريخ: 2026-01-24</p>
-            <br>
-            <h3>ملخص المدفوعات</h3>
-            <p>إجمالي المدفوعات المكتملة: 120,000 ل.س</p>
-            <p>المدفوعات المعلقة: 75,000 ل.س</p>
-            <p>المدفوعات الملغية: 100,000 ل.س</p>
+            <div class="page-header">
+                <div>
+                    <h2>💰 إدارة المدفوعات</h2>
+                    <p>مراجعة وإدارة جميع عمليات الدفع</p>
+                </div>
+                <button class="btn-add" onclick="openAddPaymentModal()">
+                    <span>➕</span> إضافة عملية دفع
+                </button>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card success">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" id="completedTotal">120,000</div>
+                    <div class="stat-unit">ل.س</div>
+                    <div class="stat-label">المدفوعات المكتملة</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-value" id="pendingTotal">75,000</div>
+                    <div class="stat-unit">ل.س</div>
+                    <div class="stat-label">المدفوعات المعلقة</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-value" id="cancelledTotal">100,000</div>
+                    <div class="stat-unit">ل.س</div>
+                    <div class="stat-label">المدفوعات الملغية</div>
+                </div>
+                <div class="stat-card info">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value" id="totalPayments">5</div>
+                    <div class="stat-unit">عملية</div>
+                    <div class="stat-label">إجمالي العمليات</div>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="payments-section">
+                <h3><span class="icon">🔍</span> فلترة المدفوعات</h3>
+                <div class="filter-section">
+                    <div class="form-group">
+                        <label>الحالة</label>
+                        <select id="filterStatus">
+                            <option value="">الكل</option>
+                            <option value="completed">مكتمل</option>
+                            <option value="pending">معلق</option>
+                            <option value="cancelled">ملغي</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>طريقة الدفع</label>
+                        <select id="filterMethod">
+                            <option value="">الكل</option>
+                            <option value="sham_cash">شام كاش</option>
+                            <option value="mtn_cash">MTN Cash</option>
+                            <option value="syriatel_cash">Syriatel Cash</option>
+                            <option value="bank">حوالة بنكية</option>
+                            <option value="cash">نقدي</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>من تاريخ</label>
+                        <input type="date" id="filterFromDate">
+                    </div>
+                    <div class="form-group">
+                        <label>إلى تاريخ</label>
+                        <input type="date" id="filterToDate">
+                    </div>
+                    <button class="btn-filter" onclick="filterPayments()">🔍 بحث</button>
+                </div>
+            </div>
+
+            <!-- Payments Table -->
+            <div class="payments-section">
+                <h3><span class="icon">📋</span> قائمة المدفوعات</h3>
+                <table class="payments-table">
+                    <thead>
+                        <tr>
+                            <th>رقم العملية</th>
+                            <th>اسم العميل</th>
+                            <th>الكورس</th>
+                            <th>المبلغ</th>
+                            <th>طريقة الدفع</th>
+                            <th>الحالة</th>
+                            <th>التاريخ</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paymentsTableBody">
+                        <!-- Payments will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
+
+    <!-- Add/Edit Payment Modal -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">إضافة عملية دفع جديدة</h2>
+                <button class="btn-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="paymentForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم العميل</label>
+                        <input type="text" name="customer_name" required placeholder="أدخل اسم العميل">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الكورس</label>
+                        <input type="text" name="course_name" required placeholder="أدخل اسم الكورس">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>المبلغ (ل.س)</label>
+                        <input type="number" name="amount" required placeholder="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>طريقة الدفع</label>
+                        <select name="payment_method" required>
+                            <option value="sham_cash">شام كاش</option>
+                            <option value="mtn_cash">MTN Cash</option>
+                            <option value="syriatel_cash">Syriatel Cash</option>
+                            <option value="bank">حوالة بنكية</option>
+                            <option value="cash">نقدي</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الحالة</label>
+                        <select name="status" required>
+                            <option value="completed">مكتمل</option>
+                            <option value="pending">معلق</option>
+                            <option value="cancelled">ملغي</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>التاريخ</label>
+                        <input type="date" name="date" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ملاحظات</label>
+                        <textarea name="notes" rows="3" placeholder="أدخل أي ملاحظات إضافية"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">💾 حفظ العملية</button>
+            </form>
+        </div>
+    </div>
 
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
     <script src="admin.js"></script>
+    <script>
+        let payments = [];
+
+        // Initialize with sample data or load from localStorage
+        function initPayments() {
+            const saved = localStorage.getItem('platform_payments');
+            if (saved) {
+                payments = JSON.parse(saved);
+            } else {
+                // Sample data
+                payments = [
+                    { id: 1, customer_name: 'أحمد محمد', course_name: 'البرمجة بلغة Python', amount: 50000, payment_method: 'sham_cash', status: 'completed', date: '2026-01-28', notes: '' },
+                    { id: 2, customer_name: 'سارة أحمد', course_name: 'تصميم واجهات المستخدم', amount: 75000, payment_method: 'mtn_cash', status: 'pending', date: '2026-01-27', notes: 'بانتظار التأكيد' },
+                    { id: 3, customer_name: 'محمد علي', course_name: 'تطوير تطبيقات الموبايل', amount: 25000, payment_method: 'syriatel_cash', status: 'completed', date: '2026-01-26', notes: '' },
+                    { id: 4, customer_name: 'فاطمة خالد', course_name: 'اللغة الإنجليزية', amount: 100000, payment_method: 'bank', status: 'cancelled', date: '2026-01-25', notes: 'تم إلغاء الطلب' },
+                    { id: 5, customer_name: 'عمر حسن', course_name: 'التسويق الرقمي', amount: 45000, payment_method: 'cash', status: 'completed', date: '2026-01-24', notes: '' }
+                ];
+                savePayments();
+            }
+            renderPayments();
+            updateStats();
+        }
+
+        function savePayments() {
+            localStorage.setItem('platform_payments', JSON.stringify(payments));
+        }
+
+        function renderPayments(filteredPayments = null) {
+            const data = filteredPayments || payments;
+            const tbody = document.getElementById('paymentsTableBody');
+
+            const methodLabels = {
+                'sham_cash': 'شام كاش',
+                'mtn_cash': 'MTN Cash',
+                'syriatel_cash': 'Syriatel Cash',
+                'bank': 'حوالة بنكية',
+                'cash': 'نقدي'
+            };
+
+            const statusLabels = {
+                'completed': { text: 'مكتمل', class: 'status-completed' },
+                'pending': { text: 'معلق', class: 'status-pending' },
+                'cancelled': { text: 'ملغي', class: 'status-cancelled' }
+            };
+
+            tbody.innerHTML = data.map(p => `
+                <tr>
+                    <td>#${String(p.id).padStart(3, '0')}</td>
+                    <td>${p.customer_name}</td>
+                    <td>${p.course_name}</td>
+                    <td>${p.amount.toLocaleString()} ل.س</td>
+                    <td>${methodLabels[p.payment_method] || p.payment_method}</td>
+                    <td><span class="status-badge ${statusLabels[p.status]?.class}">${statusLabels[p.status]?.text}</span></td>
+                    <td>${p.date}</td>
+                    <td class="actions-cell">
+                        <button class="btn-action btn-edit" onclick="editPayment(${p.id})" title="تعديل">✏️</button>
+                        <button class="btn-action btn-delete" onclick="deletePayment(${p.id})" title="حذف">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            const completed = payments.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0);
+            const pending = payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
+            const cancelled = payments.filter(p => p.status === 'cancelled').reduce((sum, p) => sum + p.amount, 0);
+
+            document.getElementById('completedTotal').textContent = completed.toLocaleString();
+            document.getElementById('pendingTotal').textContent = pending.toLocaleString();
+            document.getElementById('cancelledTotal').textContent = cancelled.toLocaleString();
+            document.getElementById('totalPayments').textContent = payments.length;
+        }
+
+        function openAddPaymentModal() {
+            document.getElementById('modalTitle').textContent = 'إضافة عملية دفع جديدة';
+            document.getElementById('paymentForm').reset();
+            document.getElementById('paymentForm').dataset.paymentId = '';
+            document.getElementById('paymentForm').querySelector('[name="date"]').valueAsDate = new Date();
+            document.getElementById('paymentModal').classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        function editPayment(id) {
+            const payment = payments.find(p => p.id === id);
+            if (payment) {
+                document.getElementById('modalTitle').textContent = 'تعديل عملية الدفع';
+                const form = document.getElementById('paymentForm');
+                form.dataset.paymentId = id;
+                form.customer_name.value = payment.customer_name;
+                form.course_name.value = payment.course_name;
+                form.amount.value = payment.amount;
+                form.payment_method.value = payment.payment_method;
+                form.status.value = payment.status;
+                form.date.value = payment.date;
+                form.notes.value = payment.notes || '';
+                document.getElementById('paymentModal').classList.add('active');
+                document.body.classList.add('modal-open');
+            }
+        }
+
+        function deletePayment(id) {
+            if (confirm('هل أنت متأكد من حذف هذه العملية؟')) {
+                payments = payments.filter(p => p.id !== id);
+                savePayments();
+                renderPayments();
+                updateStats();
+                alert('تم حذف العملية بنجاح!');
+            }
+        }
+
+        function filterPayments() {
+            const status = document.getElementById('filterStatus').value;
+            const method = document.getElementById('filterMethod').value;
+            const fromDate = document.getElementById('filterFromDate').value;
+            const toDate = document.getElementById('filterToDate').value;
+
+            let filtered = [...payments];
+
+            if (status) {
+                filtered = filtered.filter(p => p.status === status);
+            }
+            if (method) {
+                filtered = filtered.filter(p => p.payment_method === method);
+            }
+            if (fromDate) {
+                filtered = filtered.filter(p => p.date >= fromDate);
+            }
+            if (toDate) {
+                filtered = filtered.filter(p => p.date <= toDate);
+            }
+
+            renderPayments(filtered);
+        }
+
+        // Form Submit
+        document.getElementById('paymentForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const paymentId = this.dataset.paymentId;
+            const paymentData = {
+                customer_name: this.customer_name.value,
+                course_name: this.course_name.value,
+                amount: parseInt(this.amount.value),
+                payment_method: this.payment_method.value,
+                status: this.status.value,
+                date: this.date.value,
+                notes: this.notes.value
+            };
+
+            if (paymentId) {
+                // Edit existing
+                const index = payments.findIndex(p => p.id === parseInt(paymentId));
+                if (index !== -1) {
+                    payments[index] = { ...payments[index], ...paymentData };
+                }
+            } else {
+                // Add new
+                const newId = payments.length > 0 ? Math.max(...payments.map(p => p.id)) + 1 : 1;
+                payments.push({ id: newId, ...paymentData });
+            }
+
+            savePayments();
+            renderPayments();
+            updateStats();
+            closeModal();
+            alert(paymentId ? 'تم تحديث العملية بنجاح!' : 'تمت إضافة العملية بنجاح!');
+        });
+
+        // Initialize
+        initPayments();
+    </script>
 </body>
 
 </html>
