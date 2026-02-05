@@ -187,12 +187,14 @@ async function loadTeacherCourses() {
         const allCourses = data.results || [];
         console.log('All courses count:', allCourses.length);
 
-        // For teachers/admins: Show all courses they created OR all courses if admin
+        // Filter: Only show courses created by this user (unless admin)
         let myCourses = allCourses;
 
-        // Optional: Filter by instructor if needed (currently showing all for testing)
-        // Uncomment below to filter by instructor name
-        // myCourses = allCourses.filter(c => c.instructor === user.name || c.instructor.includes(user.name.split(' ')[0]));
+        // Filter courses where instructor name matches user name
+        // This prevents the 403 Forbidden error when trying to delete someone else's course
+        if (user.role !== 'admin') {
+            myCourses = allCourses.filter(c => c.instructor === user.name);
+        }
 
         if (myCourses.length === 0) {
             grid.innerHTML = '<p>لا توجد كورسات بعد. اضغط على "إضافة كورس جديد" لإنشاء كورس.</p>';
