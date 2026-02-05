@@ -8,7 +8,10 @@ function checkTeacherAuth() {
     }
     const user = api.getCurrentUser();
     // In real app, check role === 'teacher'
-    document.getElementById('teacherName').textContent = `مرحباً، ${user.name}`;
+    const teacherNameEl = document.getElementById('teacherName');
+    if (teacherNameEl) {
+        teacherNameEl.textContent = `مرحباً، ${user.name}`;
+    }
 }
 
 function logout() {
