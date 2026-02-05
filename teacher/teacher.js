@@ -180,12 +180,14 @@ async function loadTeacherCourses() {
     try {
         const user = api.getCurrentUser();
         const data = await api.getCourses();
-        // Mock filtering
-        let myCourses = (data.results || []).filter(c => c.instructor.includes(user.name.split(' ')[0]));
+        const allCourses = data.results || [];
 
-        // Fallback for demo
+        // Filter by exact instructor name matching current user
+        let myCourses = allCourses.filter(c => c.instructor === user.name);
+
+        // Fallback for demo/existing data
         if (myCourses.length === 0) {
-            myCourses = data.results || [];
+            myCourses = allCourses.filter(c => c.instructor.includes(user.name.split(' ')[0]));
         }
 
         if (myCourses.length === 0) {
@@ -323,6 +325,27 @@ function closeLessonModal() {
     document.getElementById('addLessonModal').classList.remove('active');
 }
 
+async function submitLessonForm(event) {
+    event.preventDefault();
+
+    const courseId = document.getElementById('courseIdField').value;
+    const lessonData = {
+        title: document.getElementById('lessonTitle').value,
+        type: document.getElementById('lessonType').value,
+        content_url: document.getElementById('lessonUrl').value,
+        duration_seconds: parseInt(document.getElementById('lessonDuration').value) || 0,
+        order_num: 0 // Default order
+    };
+
+    try {
+        await api.createLesson(courseId, lessonData);
+        alert('تم إضافة الدرس بنجاح!');
+        closeLessonModal();
+    } catch (error) {
+        alert('خطأ في إضافة الدرس: ' + error.message);
+    }
+}
+
 // Init
 document.addEventListener('DOMContentLoaded', () => {
     renderSidebar(); // Initializing dynamic sidebar first
@@ -336,11 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Lesson Form Listener
-    document.getElementById('addLessonForm')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        alert('سيتم إضافة الدرس قريباً! (يحتاج endpoint في API)');
-        closeLessonModal();
-    });
+    document.getElementById('addLessonForm')?.addEventListener('submit', submitLessonForm);
 
     // Course Form Listener
     document.getElementById('courseForm')?.addEventListener('submit', submitCourseForm);

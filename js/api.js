@@ -141,6 +141,27 @@ class ApiService {
             method: 'DELETE',
         });
     }
+
+    // Lesson Management Methods
+    async createLesson(courseId, lessonData) {
+        return this.request(`${CONFIG.ENDPOINTS.COURSES}/${courseId}/lessons`, {
+            method: 'POST',
+            body: JSON.stringify(lessonData),
+        });
+    }
+
+    async updateLesson(lessonId, lessonData) {
+        return this.request(`${CONFIG.ENDPOINTS.COURSES}/lessons/${lessonId}`, {
+            method: 'PUT',
+            body: JSON.stringify(lessonData),
+        });
+    }
+
+    async deleteLesson(lessonId) {
+        return this.request(`${CONFIG.ENDPOINTS.COURSES}/lessons/${lessonId}`, {
+            method: 'DELETE',
+        });
+    }
 }
 
 // Create global API instance
