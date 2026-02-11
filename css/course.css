@@ -87,12 +87,23 @@
     align-items: center;
     justify-content: center;
     max-width: 280px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.4s ease;
+}
+
+/* عند تشغيل الفيديو - توسيع الإطار */
+.course-header-image.playing {
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+    grid-column: 1 / -1;
 }
 
 .course-header-image:hover {
     transform: translateY(-4px);
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
+}
+
+.course-header-image.playing:hover {
+    transform: none;
 }
 
 .course-header-image img {

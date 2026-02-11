@@ -252,21 +252,24 @@ function playLesson(lessonId) {
     playerContainer.scrollIntoView({ behavior: 'smooth' });
 
     if (lesson.type === 'video') {
-        // Check if it's a direct file or YouTube/Vimeo (simplified for now)
+        // Add playing class to expand the container
+        playerContainer.classList.add('playing');
+
+        // Check if it's a direct file or YouTube/Vimeo
         if (lesson.content_url.includes('youtube.com') || lesson.content_url.includes('youtu.be')) {
-            // Basic YouTube embed handling (would need regex for ID extraction in production)
-            playerContainer.innerHTML = `<iframe width="100%" height="400" src="${lesson.content_url.replace('watch?v=', 'embed/')}" frameborder="0" allowfullscreen></iframe>`;
+            playerContainer.innerHTML = `<iframe width="100%" height="100%" src="${lesson.content_url.replace('watch?v=', 'embed/')}" frameborder="0" allowfullscreen></iframe>`;
         } else {
             // Direct Video File
             playerContainer.innerHTML = `
-                <video controls width="100%" height="auto" autoplay>
+                <video controls width="100%" height="100%" autoplay style="object-fit: contain;">
                     <source src="${lesson.content_url}" type="video/mp4">
                     متصفحك لا يدعم تشغيل الفيديو.
                 </video>
-                <h3 style="margin-top: 10px; color: var(--white);">${lesson.title}</h3>
              `;
         }
     } else if (lesson.type === 'pdf') {
+        // For non-video content, remove playing class
+        playerContainer.classList.remove('playing');
         playerContainer.innerHTML = `
             <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
                 <h3>📄 ${lesson.title}</h3>
@@ -275,6 +278,7 @@ function playLesson(lessonId) {
             </div>
         `;
     } else {
+        playerContainer.classList.remove('playing');
         playerContainer.innerHTML = `
             <div style="background: white; padding: 20px; border-radius: 8px;">
                 <h3>${lesson.title}</h3>
