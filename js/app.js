@@ -120,7 +120,7 @@ function createCourseCard(course) {
         <a href="course.html?id=${course.id}" class="course-card">
             <div class="course-image">
                 <img src="${course.thumbnail_url}" alt="${course.title}" 
-                     onerror="this.src='https://via.placeholder.com/400x200?text=Course'">
+                     onerror="this.onerror=null;this.src='https://via.placeholder.com/400x200?text=Course'">
                 ${isFree ? '<span class="course-badge free">مجاني</span>' : ''}
             </div>
             <div class="course-content">

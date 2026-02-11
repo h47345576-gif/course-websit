@@ -203,7 +203,7 @@ async function loadTeacherCourses() {
 
         grid.innerHTML = myCourses.map(course => `
             <div class="course-card">
-                <img src="${course.thumbnail_url || 'https://via.placeholder.com/300x200?text=Course'}" class="course-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Course'">
+                <img src="${course.thumbnail_url || 'https://via.placeholder.com/300x200?text=Course'}" class="course-img" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=Course'">
                 <div class="course-body">
                     <h4>${course.title}</h4>
                     <p style="font-size:0.9rem; color:#666; margin:5px 0;">${course.category || 'غير مصنف'}</p>
