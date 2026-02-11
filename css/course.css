@@ -34,8 +34,8 @@
 
 .course-header .container {
     display: grid;
-    grid-template-columns: 1fr 450px;
-    /* Slightly wider column for media */
+    grid-template-columns: 1fr 380px;
+    /* Reduced from 450px to make image smaller */
     gap: 50px;
     align-items: center;
     position: relative;
