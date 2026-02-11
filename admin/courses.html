@@ -65,6 +65,133 @@
             background: var(--success);
         }
 
+        .course-badge.discount {
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            top: auto;
+            bottom: 12px;
+            right: 12px;
+        }
+
+        .price-original {
+            text-decoration: line-through;
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-left: 8px;
+        }
+
+        /* Pricing Section in Form */
+        .pricing-section {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid var(--gray-light);
+        }
+
+        .pricing-section-title {
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pricing-section-title::before {
+            content: '💰';
+        }
+
+        .course-type-toggle {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .type-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .type-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .type-option label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px;
+            border: 2px solid var(--gray-light);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            background: var(--white);
+        }
+
+        .type-option input[type="radio"]:checked+label {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .type-option.free-option input[type="radio"]:checked+label {
+            border-color: var(--success);
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: var(--success);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .paid-fields {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .paid-fields.visible {
+            display: block;
+        }
+
+        .final-price-display {
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .final-price-display .label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .final-price-display .value {
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+
+        .discount-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .discount-row input[type="number"] {
+            width: 100px;
+        }
+
+        .discount-row input[type="range"] {
+            flex: 1;
+            accent-color: var(--primary);
+        }
+
         .course-body {
             padding: 20px;
         }
@@ -550,9 +677,39 @@
                     <label>محتوى إضافي</label>
                     <input type="text" name="extra_content" placeholder="أدخل محتوى إضافي للكورس">
                 </div>
-                <div class="form-group">
-                    <label>السعر (ل.س)</label>
-                    <input type="number" name="price" value="0">
+                <div class="pricing-section">
+                    <div class="pricing-section-title">تسعير الكورس</div>
+                    <div class="course-type-toggle">
+                        <div class="type-option free-option">
+                            <input type="radio" name="course_type" id="typeFree" value="free" checked>
+                            <label for="typeFree">🎁 مجاني</label>
+                        </div>
+                        <div class="type-option">
+                            <input type="radio" name="course_type" id="typePaid" value="paid">
+                            <label for="typePaid">💳 مدفوع</label>
+                        </div>
+                    </div>
+                    <div class="paid-fields" id="paidFields">
+                        <div class="form-group">
+                            <label>السعر الأصلي (ل.س)</label>
+                            <input type="number" name="original_price" value="0" min="0" step="1000"
+                                oninput="calculateFinalPrice()">
+                        </div>
+                        <div class="form-group optional">
+                            <label>نسبة الخصم (%)</label>
+                            <div class="discount-row">
+                                <input type="number" name="discount_percentage" value="0" min="0" max="100"
+                                    oninput="syncDiscount(this.value); calculateFinalPrice()">
+                                <input type="range" id="discountSlider" min="0" max="100" value="0"
+                                    oninput="syncDiscountFromSlider(this.value); calculateFinalPrice()">
+                            </div>
+                        </div>
+                        <div class="final-price-display">
+                            <div class="label">السعر النهائي</div>
+                            <div class="value" id="finalPriceDisplay">0 ل.س</div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="price" value="0">
                 </div>
                 <div class="form-group">
                     <label>التصنيف</label>
@@ -598,11 +755,26 @@
                     return;
                 }
 
-                grid.innerHTML = courses.map(course => `
+                grid.innerHTML = courses.map(course => {
+                    const isFree = course.price === 0 && (!course.original_price || course.original_price === 0);
+                    const hasDiscount = course.discount_percentage > 0 && course.original_price > 0;
+
+                    let priceHTML = '';
+                    if (isFree) {
+                        priceHTML = '<span class="course-price free">مجاني</span>';
+                    } else if (hasDiscount) {
+                        priceHTML = `<span class="price-original">${new Intl.NumberFormat('ar-SY').format(course.original_price)} ل.س</span>
+                                     <span class="course-price">${new Intl.NumberFormat('ar-SY').format(course.price)} ل.س</span>`;
+                    } else {
+                        priceHTML = `<span class="course-price">${new Intl.NumberFormat('ar-SY').format(course.price)} ل.س</span>`;
+                    }
+
+                    return `
                     <div class="course-card">
                         <div class="course-img-wrapper">
                             <img src="${course.thumbnail_url}" class="course-img" alt="${course.title}">
-                            <span class="course-badge ${course.price === 0 ? 'free' : ''}">${course.price === 0 ? 'مجاني' : course.category}</span>
+                            <span class="course-badge ${isFree ? 'free' : ''}">${isFree ? 'مجاني' : course.category}</span>
+                            ${hasDiscount ? `<span class="course-badge discount">خصم ${course.discount_percentage}%</span>` : ''}
                         </div>
                         <div class="course-body">
                             <div class="course-title">${course.title}</div>
@@ -612,9 +784,7 @@
                                     <span class="icon">📖</span>
                                     ${course.category}
                                 </span>
-                                <span class="course-price ${course.price === 0 ? 'free' : ''}">
-                                    ${course.price === 0 ? 'مجاني' : course.price + ' ل.س'}
-                                </span>
+                                ${priceHTML}
                             </div>
                             <div class="course-actions">
                                 <button class="btn-action btn-edit" onclick="editCourse(${course.id})">✏️ تعديل</button>
@@ -622,7 +792,8 @@
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `;
+                }).join('');
             } catch (error) {
                 grid.innerHTML = `
                     <div class="empty-state">
@@ -656,8 +827,22 @@
                     document.querySelector('[name="duration"]').value = course.duration || '';
                     document.querySelector('[name="requirements"]').value = course.requirements || '';
                     document.querySelector('[name="extra_content"]').value = course.extra_content || '';
-                    document.querySelector('[name="price"]').value = course.price || 0;
                     document.querySelector('[name="category"]').value = course.category || 'برمجة';
+
+                    // Set pricing fields
+                    const isFree = course.price === 0 && (!course.original_price || course.original_price === 0);
+                    if (isFree) {
+                        document.getElementById('typeFree').checked = true;
+                        document.getElementById('paidFields').classList.remove('visible');
+                    } else {
+                        document.getElementById('typePaid').checked = true;
+                        document.getElementById('paidFields').classList.add('visible');
+                        document.querySelector('[name="original_price"]').value = course.original_price || course.price || 0;
+                        document.querySelector('[name="discount_percentage"]').value = course.discount_percentage || 0;
+                        document.getElementById('discountSlider').value = course.discount_percentage || 0;
+                        calculateFinalPrice();
+                    }
+
                     document.getElementById('courseForm').dataset.courseId = id;
                     document.getElementById('courseModal').classList.add('active');
                     document.body.classList.add('modal-open');
@@ -694,10 +879,43 @@
         }
 
         // Form Submit Handler
+        // Course type toggle logic
+        document.querySelectorAll('[name="course_type"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const paidFields = document.getElementById('paidFields');
+                if (e.target.value === 'paid') {
+                    paidFields.classList.add('visible');
+                } else {
+                    paidFields.classList.remove('visible');
+                    document.querySelector('[name="original_price"]').value = 0;
+                    document.querySelector('[name="discount_percentage"]').value = 0;
+                    document.getElementById('discountSlider').value = 0;
+                    document.querySelector('[name="price"]').value = 0;
+                    document.getElementById('finalPriceDisplay').textContent = '0 ل.س';
+                }
+            });
+        });
+
+        function syncDiscount(val) {
+            document.getElementById('discountSlider').value = val;
+        }
+        function syncDiscountFromSlider(val) {
+            document.querySelector('[name="discount_percentage"]').value = val;
+        }
+        function calculateFinalPrice() {
+            const originalPrice = parseFloat(document.querySelector('[name="original_price"]').value) || 0;
+            const discount = parseFloat(document.querySelector('[name="discount_percentage"]').value) || 0;
+            const finalPrice = Math.round(originalPrice * (1 - discount / 100));
+            document.querySelector('[name="price"]').value = finalPrice;
+            document.getElementById('finalPriceDisplay').textContent = new Intl.NumberFormat('ar-SY').format(finalPrice) + ' ل.س';
+        }
+
         document.getElementById('courseForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const form = e.target;
             const courseId = form.dataset.courseId;
+            const isFree = document.getElementById('typeFree').checked;
+
             const formData = {
                 title: form.title.value,
                 description: form.description.value,
@@ -706,7 +924,9 @@
                 duration: form.duration.value,
                 requirements: form.requirements.value,
                 extra_content: form.extra_content.value,
-                price: parseFloat(form.price.value) || 0,
+                price: isFree ? 0 : (parseFloat(form.price.value) || 0),
+                original_price: isFree ? 0 : (parseFloat(form.original_price.value) || 0),
+                discount_percentage: isFree ? 0 : (parseFloat(form.discount_percentage.value) || 0),
                 category: form.category.value
             };
 
@@ -743,6 +963,9 @@
             document.getElementById('modalTitle').textContent = 'إضافة كورس جديد';
             document.getElementById('courseForm').reset();
             delete document.getElementById('courseForm').dataset.courseId;
+            document.getElementById('typeFree').checked = true;
+            document.getElementById('paidFields').classList.remove('visible');
+            document.getElementById('finalPriceDisplay').textContent = '0 ل.س';
             document.getElementById('courseModal').classList.add('active');
             document.body.classList.add('modal-open');
         }

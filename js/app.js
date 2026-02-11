@@ -114,7 +114,8 @@ async function loadAllCourses() {
 
 // Create course card HTML
 function createCourseCard(course) {
-    const isFree = course.price === 0;
+    const isFree = course.price === 0 && (!course.original_price || course.original_price === 0);
+    const hasDiscount = course.discount_percentage > 0 && course.original_price > 0;
 
     return `
         <a href="course.html?id=${course.id}" class="course-card">
@@ -122,13 +123,14 @@ function createCourseCard(course) {
                 <img src="${course.thumbnail_url}" alt="${course.title}" 
                      onerror="this.onerror=null;this.src='https://via.placeholder.com/400x200?text=Course'">
                 ${isFree ? '<span class="course-badge free">مجاني</span>' : ''}
+                ${hasDiscount ? `<span class="course-badge" style="position: absolute; bottom: 12px; right: 12px; top: auto; background: linear-gradient(135deg, #ef4444, #f97316);">خصم ${course.discount_percentage}%</span>` : ''}
             </div>
             <div class="course-content">
                 <span class="course-category">${course.category}</span>
                 <h3 class="course-title">${course.title}</h3>
                 <p class="course-instructor">👨‍🏫 ${course.instructor}</p>
                 <div class="course-meta">
-                    <span class="course-price ${isFree ? 'free' : ''}">${formatPrice(course.price)}</span>
+                    <span class="course-price ${isFree ? 'free' : ''}">${formatPrice(course.price, course.original_price, course.discount_percentage)}</span>
                     <span class="course-duration">⏱ ${formatDuration(course.duration_minutes)}</span>
                 </div>
             </div>
@@ -218,7 +220,10 @@ function displayCourseDetails(course) {
             
             <div class="course-sidebar">
                 <div class="price-card">
-                    <div class="price-value ${isFree ? 'free' : ''}">${formatPrice(course.price)}</div>
+                    ${course.discount_percentage > 0 && course.original_price > 0 ? `<div style="text-align: center; margin-bottom: 10px;">
+                        <span style="background: linear-gradient(135deg, #ef4444, #f97316); color: white; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 0.9rem;">خصم ${course.discount_percentage}%</span>
+                    </div>` : ''}
+                    <div class="price-value ${isFree ? 'free' : ''}">${formatPrice(course.price, course.original_price, course.discount_percentage)}</div>
                     ${api.isLoggedIn()
             ? `<button class="btn btn-primary btn-lg" onclick="enrollInCourse(${course.id})">سجل الآن / تابع</button>`
             : `<a href="login.html?redirect=course.html?id=${course.id}" class="btn btn-primary btn-lg">سجل دخول للتسجيل</a>`

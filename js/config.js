@@ -24,9 +24,18 @@ const CONFIG = {
 };
 
 // Format price to Syrian Pounds
-function formatPrice(price) {
-    if (price === 0) return 'مجاني';
-    return new Intl.NumberFormat('ar-SY').format(price) + ' ل.س';
+function formatPrice(price, originalPrice = null, discountPercentage = null) {
+    if (price === 0 && (!originalPrice || originalPrice === 0)) return 'مجاني';
+
+    const hasDiscount = discountPercentage > 0 && originalPrice > 0;
+    const formattedPrice = new Intl.NumberFormat('ar-SY').format(price) + ' ل.س';
+
+    if (hasDiscount) {
+        const formattedOriginal = new Intl.NumberFormat('ar-SY').format(originalPrice) + ' ل.س';
+        return `<span style="text-decoration: line-through; color: #888; font-size: 0.85rem; margin-left: 8px;">${formattedOriginal}</span> ${formattedPrice}`;
+    }
+
+    return formattedPrice;
 }
 
 // Format duration
