@@ -150,7 +150,16 @@ async function loadCourseDetails() {
     if (!container) return;
 
     try {
-        const course = await api.getCourse(courseId);
+        const [course, lessonsData] = await Promise.all([
+            api.getCourse(courseId),
+            api.getCourseLessons(courseId)
+        ]);
+
+        // Merge full lessons data (with content_url) into course object
+        if (lessonsData && lessonsData.results) {
+            course.lessons = lessonsData.results;
+        }
+
         displayCourseDetails(course);
     } catch (error) {
         container.innerHTML = `<p class="error-message">خطأ في تحميل الكورس: ${error.message}</p>`;
@@ -162,6 +171,12 @@ function displayCourseDetails(course) {
     const container = document.getElementById('courseDetails');
     const isFree = course.price === 0;
     const lessons = course.lessons || [];
+
+    // Check if user is enrolled (This is a basic check, ideally backend should confirm)
+    // For now, we assume if they can see the content_url, they can play it.
+    // Since our backend endpoint /:id/lessons is public, we can just check if url exists.
+
+    window.currentCourse = course; // Store for easy access
 
     container.innerHTML = `
         <div class="course-header">
@@ -175,8 +190,9 @@ function displayCourseDetails(course) {
                     <span>⏱ ${formatDuration(course.duration_minutes)}</span>
                 </div>
             </div>
-            <div class="course-header-image">
+            <div class="course-header-image" id="coursePlayer">
                 <img src="${course.thumbnail_url}" alt="${course.title}">
+                ${lessons.length > 0 ? `<button class="btn btn-primary" style="margin-top: 10px;" onclick="playLesson(${lessons[0].id})">▶ ابدأ المشاهدة</button>` : ''}
             </div>
         </div>
         
@@ -185,13 +201,14 @@ function displayCourseDetails(course) {
                 <h2>محتوى الكورس</h2>
                 <div class="lessons-list">
                     ${lessons.map((lesson, index) => `
-                        <div class="lesson-item">
+                        <div class="lesson-item ${lesson.content_url ? 'clickable' : ''}" onclick="${lesson.content_url ? `playLesson(${lesson.id})` : ''}" style="${lesson.content_url ? 'cursor: pointer;' : ''}">
                             <span class="lesson-number">${index + 1}</span>
                             <div class="lesson-info">
                                 <h4>${lesson.title}</h4>
                                 <span class="lesson-type">${getLessonTypeIcon(lesson.type)} ${getLessonTypeName(lesson.type)}</span>
                             </div>
                             <span class="lesson-duration">${formatLessonDuration(lesson.duration_seconds)}</span>
+                            ${lesson.content_url ? '<span>▶</span>' : '<span>🔒</span>'}
                         </div>
                     `).join('')}
                 </div>
@@ -201,7 +218,7 @@ function displayCourseDetails(course) {
                 <div class="price-card">
                     <div class="price-value ${isFree ? 'free' : ''}">${formatPrice(course.price)}</div>
                     ${api.isLoggedIn()
-            ? `<button class="btn btn-primary btn-lg" onclick="enrollInCourse(${course.id})">سجل الآن</button>`
+            ? `<button class="btn btn-primary btn-lg" onclick="enrollInCourse(${course.id})">سجل الآن / تابع</button>`
             : `<a href="login.html?redirect=course.html?id=${course.id}" class="btn btn-primary btn-lg">سجل دخول للتسجيل</a>`
         }
                     <ul class="course-includes">
@@ -214,6 +231,55 @@ function displayCourseDetails(course) {
             </div>
         </div>
     `;
+}
+
+// Play Lesson Function
+function playLesson(lessonId) {
+    if (!window.currentCourse || !window.currentCourse.lessons) return;
+
+    const lesson = window.currentCourse.lessons.find(l => l.id == lessonId);
+    if (!lesson || !lesson.content_url) {
+        alert('هذا الدرس غير متاح حالياً');
+        return;
+    }
+
+    const playerContainer = document.getElementById('coursePlayer');
+    if (!playerContainer) return;
+
+    // Scroll to player
+    playerContainer.scrollIntoView({ behavior: 'smooth' });
+
+    if (lesson.type === 'video') {
+        // Check if it's a direct file or YouTube/Vimeo (simplified for now)
+        if (lesson.content_url.includes('youtube.com') || lesson.content_url.includes('youtu.be')) {
+            // Basic YouTube embed handling (would need regex for ID extraction in production)
+            playerContainer.innerHTML = `<iframe width="100%" height="400" src="${lesson.content_url.replace('watch?v=', 'embed/')}" frameborder="0" allowfullscreen></iframe>`;
+        } else {
+            // Direct Video File
+            playerContainer.innerHTML = `
+                <video controls width="100%" height="auto" autoplay>
+                    <source src="${lesson.content_url}" type="video/mp4">
+                    متصفحك لا يدعم تشغيل الفيديو.
+                </video>
+                <h3 style="margin-top: 10px; color: var(--white);">${lesson.title}</h3>
+             `;
+        }
+    } else if (lesson.type === 'pdf') {
+        playerContainer.innerHTML = `
+            <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+                <h3>📄 ${lesson.title}</h3>
+                <p>هذا الدرس عبارة عن ملف PDF.</p>
+                <a href="${lesson.content_url}" target="_blank" class="btn btn-primary">فتح الملف</a>
+            </div>
+        `;
+    } else {
+        playerContainer.innerHTML = `
+            <div style="background: white; padding: 20px; border-radius: 8px;">
+                <h3>${lesson.title}</h3>
+                <p>${lesson.text_content || 'لا يوجد محتوى نصي.'}</p>
+            </div>
+        `;
+    }
 }
 
 // Helper functions for lessons
