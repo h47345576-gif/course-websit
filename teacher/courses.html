@@ -48,13 +48,28 @@
                     <label>نوع الدرس</label>
                     <select id="lessonType">
                         <option value="video">فيديو (YouTube)</option>
+                        <option value="video_upload">فيديو (رفع ملف)</option>
                         <option value="text">نص</option>
                         <option value="pdf">ملف PDF</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="urlGroup">
                     <label>رابط المحتوى / الفيديو</label>
                     <input type="url" id="lessonUrl" placeholder="https://...">
+                </div>
+                <!-- Video Upload Group -->
+                <div class="form-group" id="videoUploadGroup" style="display: none;">
+                    <label>رفع ملف فيديو</label>
+                    <input type="file" id="lessonVideoFile" accept="video/*">
+                    <div id="uploadProgressContainer" style="display: none; margin-top: 10px;">
+                        <div style="background-color: #e5e7eb; border-radius: 9999px; overflow: hidden; height: 10px;">
+                            <div id="uploadProgressBar"
+                                style="width: 0%; height: 100%; background-color: #6366f1; transition: width 0.3s;">
+                            </div>
+                        </div>
+                        <p id="uploadStatusText"
+                            style="text-align: center; font-size: 0.8rem; margin-top: 5px; color: #666;">0%</p>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>المدة (بالثواني)</label>

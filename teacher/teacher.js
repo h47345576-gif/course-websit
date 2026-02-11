@@ -374,24 +374,110 @@ function closeLessonModal() {
     document.getElementById('addLessonModal').classList.remove('active');
 }
 
+async function uploadVideo(file) {
+    const progressBar = document.getElementById('uploadProgressBar');
+    const statusText = document.getElementById('uploadStatusText');
+    const container = document.getElementById('uploadProgressContainer');
+
+    container.style.display = 'block';
+    progressBar.style.width = '0%';
+    statusText.textContent = 'جاري التحضير للرفع...';
+
+    try {
+        // 1. Get Presigned URL
+        statusText.textContent = 'جاري طلب رابط الرفع...';
+        const presignResponse = await api.request('/courses/upload-url', {
+            method: 'POST',
+            body: JSON.stringify({
+                fileName: file.name,
+                fileType: file.type
+            })
+        });
+
+        const { uploadUrl, publicUrl } = presignResponse;
+
+        // 2. Upload to R2 directly using XHR for progress
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('PUT', uploadUrl, true);
+            xhr.setRequestHeader('Content-Type', file.type);
+
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const percentComplete = Math.round((e.loaded / e.total) * 100);
+                    progressBar.style.width = percentComplete + '%';
+                    statusText.textContent = `جاري الرفع: ${percentComplete}%`;
+                }
+            };
+
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    progressBar.style.width = '100%';
+                    statusText.textContent = 'تم الرفع بنجاح!';
+                    resolve(publicUrl);
+                } else {
+                    reject(new Error('Upload failed with status: ' + xhr.status));
+                }
+            };
+
+            xhr.onerror = () => reject(new Error('Network error during upload'));
+
+            xhr.send(file);
+        });
+
+    } catch (error) {
+        container.style.display = 'none';
+        throw error;
+    }
+}
+
 async function submitLessonForm(event) {
     event.preventDefault();
 
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.textContent;
+    submitBtn.disabled = true;
+
     const courseId = document.getElementById('courseIdField').value;
-    const lessonData = {
-        title: document.getElementById('lessonTitle').value,
-        type: document.getElementById('lessonType').value,
-        content_url: document.getElementById('lessonUrl').value,
-        duration_seconds: parseInt(document.getElementById('lessonDuration').value) || 0,
-        order_num: 0 // Default order
-    };
+    const lessonType = document.getElementById('lessonType').value;
+    let contentUrl = document.getElementById('lessonUrl').value;
+    let typeToSend = lessonType;
 
     try {
+        // Handle Video Upload
+        if (lessonType === 'video_upload') {
+            const fileInput = document.getElementById('lessonVideoFile');
+            if (fileInput.files.length === 0) {
+                throw new Error('يرجى اختيار ملف فيديو للرفع');
+            }
+
+            submitBtn.textContent = 'جاري رفع الفيديو...';
+            contentUrl = await uploadVideo(fileInput.files[0]);
+            typeToSend = 'video'; // Store as standard video type in DB
+        }
+
+        const lessonData = {
+            title: document.getElementById('lessonTitle').value,
+            type: typeToSend,
+            content_url: contentUrl,
+            duration_seconds: parseInt(document.getElementById('lessonDuration').value) || 0,
+            order_num: 0 // Default order
+        };
+
+        submitBtn.textContent = 'جاري الحفظ...';
         await api.createLesson(courseId, lessonData);
         alert('تم إضافة الدرس بنجاح!');
         closeLessonModal();
+
+        // Reset form specific elements
+        document.getElementById('uploadProgressContainer').style.display = 'none';
+        document.getElementById('uploadProgressBar').style.width = '0%';
+
     } catch (error) {
-        alert('خطأ في إضافة الدرس: ' + error.message);
+        alert('خطأ: ' + error.message);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
     }
 }
 
@@ -418,6 +504,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Lesson Form Listener
     document.getElementById('addLessonForm')?.addEventListener('submit', submitLessonForm);
+
+    // Lesson Type Toggle Listener
+    const lessonTypeSelect = document.getElementById('lessonType');
+    const urlGroup = document.getElementById('urlGroup');
+    const videoUploadGroup = document.getElementById('videoUploadGroup');
+
+    if (lessonTypeSelect) {
+        lessonTypeSelect.addEventListener('change', () => {
+            const type = lessonTypeSelect.value;
+            if (type === 'video_upload') {
+                urlGroup.style.display = 'none';
+                videoUploadGroup.style.display = 'block';
+                document.getElementById('lessonUrl').required = false;
+            } else {
+                urlGroup.style.display = 'block';
+                videoUploadGroup.style.display = 'none';
+                // Reset file input
+                document.getElementById('lessonVideoFile').value = '';
+                document.getElementById('uploadProgressContainer').style.display = 'none';
+            }
+        });
+    }
 
     // Course Form Listener
     document.getElementById('courseForm')?.addEventListener('submit', submitCourseForm);
