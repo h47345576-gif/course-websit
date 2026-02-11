@@ -1,24 +1,23 @@
 /* ==========================================
-   COURSE PAGE SPECIFIC STYLES
+   COURSE PAGE - PROFESSIONAL STYLES
+   متجاوب بالكامل للجوال واللابتوب
    ========================================== */
 
 .course-page {
     padding-top: 80px;
-    min-height: calc(100vh - 300px);
-    /* Ensure footer doesn't jump up too high on empty content */
+    min-height: calc(100vh - 200px);
 }
 
 /* --- Header Section --- */
 .course-header {
     background: var(--gradient);
     color: var(--white);
-    padding: 60px 0 80px;
-    /* Added bottom padding for better spacing */
+    padding: 50px 0 60px;
     position: relative;
     overflow: hidden;
 }
 
-/* Subtle pattern overlay */
+/* Decorative overlay */
 .course-header::before {
     content: '';
     position: absolute;
@@ -27,74 +26,78 @@
     width: 100%;
     height: 100%;
     background-image:
-        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 20%),
-        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 20%);
+        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 25%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 25%);
     pointer-events: none;
 }
 
 .course-header .container {
     display: grid;
-    grid-template-columns: 1fr 300px;
-    /* Reduced further to 300px from 380px */
-    gap: 50px;
+    grid-template-columns: 1fr 280px;
+    gap: 40px;
     align-items: center;
     position: relative;
     z-index: 1;
 }
 
 .course-header h1 {
-    font-size: 2.75rem;
+    font-size: 2.2rem;
     font-weight: 800;
-    margin: 15px 0 25px;
-    line-height: 1.3;
+    margin: 12px 0 18px;
+    line-height: 1.4;
 }
 
 .course-description {
-    opacity: 0.95;
-    margin-bottom: 30px;
+    opacity: 0.92;
+    margin-bottom: 24px;
     line-height: 1.8;
-    font-size: 1.1rem;
-    max-width: 90%;
+    font-size: 1rem;
+    max-width: 95%;
 }
 
 .course-meta-info {
     display: flex;
-    gap: 30px;
+    gap: 20px;
     flex-wrap: wrap;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 15px 25px;
+    background: rgba(255, 255, 255, 0.12);
+    padding: 12px 20px;
     border-radius: var(--radius);
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(8px);
     width: fit-content;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .course-meta-info span {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     font-weight: 500;
+    font-size: 0.92rem;
 }
 
-/* Header Image / Player Container */
+/* --- Header Image / Player Container --- */
 .course-header-image {
     position: relative;
     border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     background: #000;
-    /* Fallback for video layout */
-    aspect-ratio: 16 / 9;
-    /* Enforce standard video aspect ratio */
+    aspect-ratio: 4 / 3;
     display: flex;
-    /* Center content */
     align-items: center;
     justify-content: center;
+    max-width: 280px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.course-header-image:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
 }
 
 .course-header-image img {
     width: 100%;
     height: 100%;
-    /* Fill container */
     object-fit: cover;
     display: block;
 }
@@ -104,48 +107,41 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    /* Ensure video is contained properly */
 }
 
-/* Play Button Overlay (within image if needed, mostly handled by JS but good to style) */
-.course-header-image .btn-play-overlay {
+/* Start Button inside image container */
+.course-header-image .btn {
     position: absolute;
-    top: 50%;
+    bottom: 12px;
     left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 4rem;
-    color: var(--white);
-    opacity: 0.8;
-    transition: var(--transition);
-    cursor: pointer;
-    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.course-header-image:hover .btn-play-overlay {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.1);
+    transform: translateX(-50%);
+    font-size: 0.85rem;
+    padding: 8px 18px;
+    white-space: nowrap;
+    backdrop-filter: blur(8px);
+    background: rgba(99, 102, 241, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* --- Main Content Layout --- */
 .course-body {
     display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 40px;
-    padding: 60px 0;
+    grid-template-columns: 1fr 340px;
+    gap: 35px;
+    padding: 50px 20px;
     max-width: 1200px;
     margin: 0 auto;
-    padding-left: 20px;
-    padding-right: 20px;
 }
 
 /* --- Lessons List --- */
 .course-content-section h2 {
-    font-size: 1.75rem;
-    margin-bottom: 25px;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
     color: var(--dark);
     font-weight: 700;
-    border-right: 5px solid var(--primary);
-    padding-right: 15px;
+    border-right: 4px solid var(--primary);
+    padding-right: 14px;
+    position: relative;
 }
 
 .lessons-list {
@@ -159,8 +155,8 @@
 .lesson-item {
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding: 20px 25px;
+    gap: 16px;
+    padding: 16px 20px;
     border-bottom: 1px solid var(--gray-100);
     transition: var(--transition);
     background: var(--white);
@@ -176,21 +172,17 @@
 
 .lesson-item.active {
     background: #eff6ff;
-    /* Light primary color background */
-    border-left: 4px solid var(--primary);
-    /* LTR/RTL might need adjustment, handled by border-right in RTL context usually */
 }
 
-/* RTL specific adjustment for active state border */
+/* RTL active border */
 html[dir="rtl"] .lesson-item.active {
     border-left: none;
     border-right: 4px solid var(--primary);
 }
 
-
 .lesson-number {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     background: var(--gray-200);
     color: var(--gray-600);
     border-radius: 50%;
@@ -198,6 +190,7 @@ html[dir="rtl"] .lesson-item.active {
     align-items: center;
     justify-content: center;
     font-weight: 700;
+    font-size: 0.9rem;
     flex-shrink: 0;
     transition: var(--transition);
 }
@@ -210,17 +203,21 @@ html[dir="rtl"] .lesson-item.active {
 
 .lesson-info {
     flex: 1;
+    min-width: 0;
 }
 
 .lesson-info h4 {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     color: var(--dark);
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .lesson-type {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--gray-500);
     background: var(--gray-100);
     padding: 2px 8px;
@@ -230,16 +227,16 @@ html[dir="rtl"] .lesson-item.active {
 
 .lesson-duration {
     color: var(--gray-500);
-    font-size: 0.9rem;
-    font-family: monospace;
-    /* Better for numbers */
+    font-size: 0.8rem;
+    font-family: 'Cairo', monospace;
     background: var(--gray-100);
-    padding: 4px 8px;
+    padding: 3px 8px;
     border-radius: 6px;
+    flex-shrink: 0;
 }
 
 .lesson-status-icon {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: var(--gray-400);
 }
 
@@ -257,7 +254,7 @@ html[dir="rtl"] .lesson-item.active {
 .price-card {
     background: var(--white);
     border-radius: var(--radius-lg);
-    padding: 35px;
+    padding: 30px;
     box-shadow: var(--shadow-lg);
     text-align: center;
     border: 1px solid var(--gray-100);
@@ -265,22 +262,22 @@ html[dir="rtl"] .lesson-item.active {
     overflow: hidden;
 }
 
-/* Decorative top border */
+/* Gradient top border */
 .price-card::after {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 6px;
+    height: 5px;
     background: var(--gradient);
 }
 
 .price-value {
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: 800;
     color: var(--primary);
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     letter-spacing: -1px;
 }
 
@@ -290,31 +287,32 @@ html[dir="rtl"] .lesson-item.active {
 
 .price-card .btn {
     width: 100%;
-    margin-bottom: 25px;
-    padding: 16px;
-    font-size: 1.1rem;
+    margin-bottom: 20px;
+    padding: 14px;
+    font-size: 1rem;
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .price-card .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.25);
 }
 
 .course-includes {
     text-align: right;
     background: var(--gray-100);
-    padding: 20px;
+    padding: 16px;
     border-radius: var(--radius);
 }
 
 .course-includes li {
-    padding: 10px 0;
+    padding: 8px 0;
     color: var(--gray-600);
     border-bottom: 1px dashed var(--gray-300);
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    font-size: 0.92rem;
 }
 
 .course-includes li:last-child {
@@ -322,22 +320,26 @@ html[dir="rtl"] .lesson-item.active {
 }
 
 
-/* --- Responsive Design --- */
+/* ==========================================
+   RESPONSIVE - TABLET (max-width: 992px)
+   ========================================== */
 @media (max-width: 992px) {
     .course-header .container {
         grid-template-columns: 1fr;
-        padding-bottom: 40px;
-        /* Adjust spacing */
         text-align: center;
+        gap: 30px;
     }
 
     .course-header-image {
         order: -1;
-        /* Image/Video on top */
-        max-width: 400px;
-        /* Reduced further to 400px from 500px */
+        max-width: 260px;
         margin: 0 auto;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        aspect-ratio: 4 / 3;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .course-header h1 {
+        font-size: 1.8rem;
     }
 
     .course-meta-info {
@@ -348,44 +350,157 @@ html[dir="rtl"] .lesson-item.active {
     .course-description {
         margin-left: auto;
         margin-right: auto;
+        max-width: 100%;
     }
 
     .course-body {
         grid-template-columns: 1fr;
-        gap: 50px;
+        gap: 30px;
+        padding: 40px 16px;
     }
 
     .course-sidebar {
         position: static;
-        /* Stack naturally */
-        max-width: 600px;
+        max-width: 500px;
         margin: 0 auto;
-        order: -1;
-        /* Show price/enroll ABOVE lessons on mobile for better conversion flow? Or below? Usually better above content or fixed bottom. Let's keep above for visibility. */
         order: 1;
-        /* Actually, content is king. Let user see content then enroll. */
     }
 }
 
+/* ==========================================
+   RESPONSIVE - MOBILE (max-width: 768px)
+   ========================================== */
 @media (max-width: 768px) {
+    .course-page {
+        padding-top: 65px;
+    }
+
     .course-header {
-        padding-top: 40px;
+        padding: 30px 0 40px;
     }
 
     .course-header h1 {
-        font-size: 2rem;
+        font-size: 1.5rem;
+        margin: 8px 0 12px;
+    }
+
+    .course-description {
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+        line-height: 1.7;
+    }
+
+    .course-header-image {
+        max-width: 200px;
+        border-radius: var(--radius);
+    }
+
+    .course-header-image .btn {
+        font-size: 0.78rem;
+        padding: 6px 14px;
+        bottom: 8px;
+    }
+
+    .course-meta-info {
+        gap: 12px;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+
+    .course-meta-info span {
+        font-size: 0.82rem;
+        gap: 5px;
+    }
+
+    .course-body {
+        padding: 25px 12px;
+        gap: 25px;
+    }
+
+    .course-content-section h2 {
+        font-size: 1.25rem;
+        margin-bottom: 16px;
     }
 
     .lesson-item {
-        padding: 15px;
-        gap: 15px;
+        padding: 12px 14px;
+        gap: 10px;
     }
 
-    .lesson-duration {
+    .lesson-number {
+        width: 30px;
+        height: 30px;
         font-size: 0.8rem;
     }
 
+    .lesson-info h4 {
+        font-size: 0.88rem;
+    }
+
+    .lesson-type {
+        font-size: 0.72rem;
+    }
+
+    .lesson-duration {
+        font-size: 0.72rem;
+        padding: 2px 6px;
+    }
+
     .price-card {
-        padding: 25px;
+        padding: 20px;
+    }
+
+    .price-value {
+        font-size: 2rem;
+        margin-bottom: 16px;
+    }
+
+    .price-card .btn {
+        padding: 12px;
+        font-size: 0.95rem;
+        margin-bottom: 16px;
+    }
+
+    .course-includes li {
+        font-size: 0.85rem;
+        padding: 6px 0;
+    }
+}
+
+/* ==========================================
+   RESPONSIVE - SMALL MOBILE (max-width: 480px)
+   ========================================== */
+@media (max-width: 480px) {
+    .course-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .course-header-image {
+        max-width: 180px;
+    }
+
+    .course-meta-info {
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .lesson-item {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+
+    .lesson-number {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+    }
+
+    .lesson-info h4 {
+        font-size: 0.82rem;
+    }
+
+    .price-value {
+        font-size: 1.8rem;
     }
 }

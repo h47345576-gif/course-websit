@@ -180,19 +180,21 @@ function displayCourseDetails(course) {
 
     container.innerHTML = `
         <div class="course-header">
-            <div class="course-header-content">
-                <span class="course-category">${course.category}</span>
-                <h1>${course.title}</h1>
-                <p class="course-description">${course.description}</p>
-                <div class="course-meta-info">
-                    <span>👨‍🏫 ${course.instructor}</span>
-                    <span>📚 ${lessons.length} درس</span>
-                    <span>⏱ ${formatDuration(course.duration_minutes)}</span>
+            <div class="container">
+                <div class="course-header-content">
+                    <span class="course-category">${course.category}</span>
+                    <h1>${course.title}</h1>
+                    <p class="course-description">${course.description}</p>
+                    <div class="course-meta-info">
+                        <span>👨‍🏫 ${course.instructor}</span>
+                        <span>📚 ${lessons.length} درس</span>
+                        <span>⏱ ${formatDuration(course.duration_minutes)}</span>
+                    </div>
                 </div>
-            </div>
-            <div class="course-header-image" id="coursePlayer">
-                <img src="${course.thumbnail_url}" alt="${course.title}">
-                ${lessons.length > 0 ? `<button class="btn btn-primary" style="margin-top: 10px;" onclick="playLesson(${lessons[0].id})">▶ ابدأ المشاهدة</button>` : ''}
+                <div class="course-header-image" id="coursePlayer">
+                    <img src="${course.thumbnail_url}" alt="${course.title}">
+                    ${lessons.length > 0 ? `<button class="btn btn-primary" onclick="playLesson(${lessons[0].id})">▶ ابدأ المشاهدة</button>` : ''}
+                </div>
             </div>
         </div>
         
