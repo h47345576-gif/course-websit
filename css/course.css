@@ -4,14 +4,16 @@
 
 .course-page {
     padding-top: 80px;
-    min-height: calc(100vh - 300px); /* Ensure footer doesn't jump up too high on empty content */
+    min-height: calc(100vh - 300px);
+    /* Ensure footer doesn't jump up too high on empty content */
 }
 
 /* --- Header Section --- */
 .course-header {
     background: var(--gradient);
     color: var(--white);
-    padding: 60px 0 80px; /* Added bottom padding for better spacing */
+    padding: 60px 0 80px;
+    /* Added bottom padding for better spacing */
     position: relative;
     overflow: hidden;
 }
@@ -24,7 +26,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: 
+    background-image:
         radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 20%),
         radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 20%);
     pointer-events: none;
@@ -32,7 +34,8 @@
 
 .course-header .container {
     display: grid;
-    grid-template-columns: 1fr 450px; /* Slightly wider column for media */
+    grid-template-columns: 1fr 450px;
+    /* Slightly wider column for media */
     gap: 50px;
     align-items: center;
     position: relative;
@@ -78,16 +81,20 @@
     border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    background: #000; /* Fallback for video layout */
-    aspect-ratio: 16 / 9; /* Enforce standard video aspect ratio */
-    display: flex; /* Center content */
+    background: #000;
+    /* Fallback for video layout */
+    aspect-ratio: 16 / 9;
+    /* Enforce standard video aspect ratio */
+    display: flex;
+    /* Center content */
     align-items: center;
     justify-content: center;
 }
 
 .course-header-image img {
     width: 100%;
-    height: 100%; /* Fill container */
+    height: 100%;
+    /* Fill container */
     object-fit: cover;
     display: block;
 }
@@ -96,7 +103,8 @@
 .course-header-image video {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* Ensure video is contained properly */
+    object-fit: contain;
+    /* Ensure video is contained properly */
 }
 
 /* Play Button Overlay (within image if needed, mostly handled by JS but good to style) */
@@ -110,7 +118,7 @@
     opacity: 0.8;
     transition: var(--transition);
     cursor: pointer;
-    text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .course-header-image:hover .btn-play-overlay {
@@ -167,9 +175,12 @@
 }
 
 .lesson-item.active {
-    background: #eff6ff; /* Light primary color background */
-    border-left: 4px solid var(--primary); /* LTR/RTL might need adjustment, handled by border-right in RTL context usually */
+    background: #eff6ff;
+    /* Light primary color background */
+    border-left: 4px solid var(--primary);
+    /* LTR/RTL might need adjustment, handled by border-right in RTL context usually */
 }
+
 /* RTL specific adjustment for active state border */
 html[dir="rtl"] .lesson-item.active {
     border-left: none;
@@ -220,7 +231,8 @@ html[dir="rtl"] .lesson-item.active {
 .lesson-duration {
     color: var(--gray-500);
     font-size: 0.9rem;
-    font-family: monospace; /* Better for numbers */
+    font-family: monospace;
+    /* Better for numbers */
     background: var(--gray-100);
     padding: 4px 8px;
     border-radius: 6px;
@@ -314,22 +326,25 @@ html[dir="rtl"] .lesson-item.active {
 @media (max-width: 992px) {
     .course-header .container {
         grid-template-columns: 1fr;
-        padding-bottom: 40px; /* Adjust spacing */
+        padding-bottom: 40px;
+        /* Adjust spacing */
         text-align: center;
     }
-    
+
     .course-header-image {
-        order: -1; /* Image/Video on top */
-        max-width: 800px; /* Limit width */
+        order: -1;
+        /* Image/Video on top */
+        max-width: 500px;
+        /* Limit width to match desktop feel */
         margin: 0 auto;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
-    
+
     .course-meta-info {
         margin: 0 auto;
         justify-content: center;
     }
-    
+
     .course-description {
         margin-left: auto;
         margin-right: auto;
@@ -341,11 +356,14 @@ html[dir="rtl"] .lesson-item.active {
     }
 
     .course-sidebar {
-        position: static; /* Stack naturally */
+        position: static;
+        /* Stack naturally */
         max-width: 600px;
         margin: 0 auto;
-        order: -1; /* Show price/enroll ABOVE lessons on mobile for better conversion flow? Or below? Usually better above content or fixed bottom. Let's keep above for visibility. */
-        order: 1; /* Actually, content is king. Let user see content then enroll. */
+        order: -1;
+        /* Show price/enroll ABOVE lessons on mobile for better conversion flow? Or below? Usually better above content or fixed bottom. Let's keep above for visibility. */
+        order: 1;
+        /* Actually, content is king. Let user see content then enroll. */
     }
 }
 
@@ -353,7 +371,7 @@ html[dir="rtl"] .lesson-item.active {
     .course-header {
         padding-top: 40px;
     }
-    
+
     .course-header h1 {
         font-size: 2rem;
     }
@@ -362,11 +380,11 @@ html[dir="rtl"] .lesson-item.active {
         padding: 15px;
         gap: 15px;
     }
-    
+
     .lesson-duration {
         font-size: 0.8rem;
     }
-    
+
     .price-card {
         padding: 25px;
     }
