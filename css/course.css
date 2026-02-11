@@ -1,0 +1,373 @@
+/* ==========================================
+   COURSE PAGE SPECIFIC STYLES
+   ========================================== */
+
+.course-page {
+    padding-top: 80px;
+    min-height: calc(100vh - 300px); /* Ensure footer doesn't jump up too high on empty content */
+}
+
+/* --- Header Section --- */
+.course-header {
+    background: var(--gradient);
+    color: var(--white);
+    padding: 60px 0 80px; /* Added bottom padding for better spacing */
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle pattern overlay */
+.course-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 20%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 20%);
+    pointer-events: none;
+}
+
+.course-header .container {
+    display: grid;
+    grid-template-columns: 1fr 450px; /* Slightly wider column for media */
+    gap: 50px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.course-header h1 {
+    font-size: 2.75rem;
+    font-weight: 800;
+    margin: 15px 0 25px;
+    line-height: 1.3;
+}
+
+.course-description {
+    opacity: 0.95;
+    margin-bottom: 30px;
+    line-height: 1.8;
+    font-size: 1.1rem;
+    max-width: 90%;
+}
+
+.course-meta-info {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px 25px;
+    border-radius: var(--radius);
+    backdrop-filter: blur(5px);
+    width: fit-content;
+}
+
+.course-meta-info span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+/* Header Image / Player Container */
+.course-header-image {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    background: #000; /* Fallback for video layout */
+    aspect-ratio: 16 / 9; /* Enforce standard video aspect ratio */
+    display: flex; /* Center content */
+    align-items: center;
+    justify-content: center;
+}
+
+.course-header-image img {
+    width: 100%;
+    height: 100%; /* Fill container */
+    object-fit: cover;
+    display: block;
+}
+
+.course-header-image iframe,
+.course-header-image video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Ensure video is contained properly */
+}
+
+/* Play Button Overlay (within image if needed, mostly handled by JS but good to style) */
+.course-header-image .btn-play-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    color: var(--white);
+    opacity: 0.8;
+    transition: var(--transition);
+    cursor: pointer;
+    text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.course-header-image:hover .btn-play-overlay {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* --- Main Content Layout --- */
+.course-body {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 40px;
+    padding: 60px 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+/* --- Lessons List --- */
+.course-content-section h2 {
+    font-size: 1.75rem;
+    margin-bottom: 25px;
+    color: var(--dark);
+    font-weight: 700;
+    border-right: 5px solid var(--primary);
+    padding-right: 15px;
+}
+
+.lessons-list {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-200);
+}
+
+.lesson-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 25px;
+    border-bottom: 1px solid var(--gray-100);
+    transition: var(--transition);
+    background: var(--white);
+}
+
+.lesson-item:last-child {
+    border-bottom: none;
+}
+
+.lesson-item:hover {
+    background: var(--gray-100);
+}
+
+.lesson-item.active {
+    background: #eff6ff; /* Light primary color background */
+    border-left: 4px solid var(--primary); /* LTR/RTL might need adjustment, handled by border-right in RTL context usually */
+}
+/* RTL specific adjustment for active state border */
+html[dir="rtl"] .lesson-item.active {
+    border-left: none;
+    border-right: 4px solid var(--primary);
+}
+
+
+.lesson-number {
+    width: 40px;
+    height: 40px;
+    background: var(--gray-200);
+    color: var(--gray-600);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: var(--transition);
+}
+
+.lesson-item.active .lesson-number,
+.lesson-item:hover .lesson-number {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.lesson-info {
+    flex: 1;
+}
+
+.lesson-info h4 {
+    font-size: 1.05rem;
+    color: var(--dark);
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.lesson-type {
+    font-size: 0.85rem;
+    color: var(--gray-500);
+    background: var(--gray-100);
+    padding: 2px 8px;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.lesson-duration {
+    color: var(--gray-500);
+    font-size: 0.9rem;
+    font-family: monospace; /* Better for numbers */
+    background: var(--gray-100);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.lesson-status-icon {
+    font-size: 1.2rem;
+    color: var(--gray-400);
+}
+
+.lesson-item.clickable {
+    cursor: pointer;
+}
+
+/* --- Sidebar --- */
+.course-sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.price-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 35px;
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    border: 1px solid var(--gray-100);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decorative top border */
+.price-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: var(--gradient);
+}
+
+.price-value {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 25px;
+    letter-spacing: -1px;
+}
+
+.price-value.free {
+    color: var(--secondary);
+}
+
+.price-card .btn {
+    width: 100%;
+    margin-bottom: 25px;
+    padding: 16px;
+    font-size: 1.1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.price-card .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+}
+
+.course-includes {
+    text-align: right;
+    background: var(--gray-100);
+    padding: 20px;
+    border-radius: var(--radius);
+}
+
+.course-includes li {
+    padding: 10px 0;
+    color: var(--gray-600);
+    border-bottom: 1px dashed var(--gray-300);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.course-includes li:last-child {
+    border-bottom: none;
+}
+
+
+/* --- Responsive Design --- */
+@media (max-width: 992px) {
+    .course-header .container {
+        grid-template-columns: 1fr;
+        padding-bottom: 40px; /* Adjust spacing */
+        text-align: center;
+    }
+    
+    .course-header-image {
+        order: -1; /* Image/Video on top */
+        max-width: 800px; /* Limit width */
+        margin: 0 auto;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .course-meta-info {
+        margin: 0 auto;
+        justify-content: center;
+    }
+    
+    .course-description {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .course-body {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+
+    .course-sidebar {
+        position: static; /* Stack naturally */
+        max-width: 600px;
+        margin: 0 auto;
+        order: -1; /* Show price/enroll ABOVE lessons on mobile for better conversion flow? Or below? Usually better above content or fixed bottom. Let's keep above for visibility. */
+        order: 1; /* Actually, content is king. Let user see content then enroll. */
+    }
+}
+
+@media (max-width: 768px) {
+    .course-header {
+        padding-top: 40px;
+    }
+    
+    .course-header h1 {
+        font-size: 2rem;
+    }
+
+    .lesson-item {
+        padding: 15px;
+        gap: 15px;
+    }
+    
+    .lesson-duration {
+        font-size: 0.8rem;
+    }
+    
+    .price-card {
+        padding: 25px;
+    }
+}
