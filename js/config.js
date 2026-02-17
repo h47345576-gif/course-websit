@@ -23,11 +23,21 @@ const CONFIG = {
         PAYMENT_DETAILS: (id) => `/payments/${id}`,
         CONFIRM_PAYMENT: (id) => `/payments/${id}/confirm`,
 
-        // Notifications
+// Notifications
         NOTIFICATIONS: '/notifications',
         NOTIFICATIONS_COUNT: '/notifications/count',
         NOTIFICATION_READ: (id) => `/notifications/${id}/read`,
         NOTIFICATIONS_READ_ALL: '/notifications/read-all',
+
+        // Lessons
+        ADD_LESSON: (courseId) => `/courses/${courseId}/lessons`,
+        UPDATE_LESSON: (lessonId) => `/courses/lessons/${lessonId}`,
+        DELETE_LESSON: (lessonId) => `/courses/lessons/${lessonId}`,
+
+        // Quizzes
+        QUIZ: (lessonId) => `/quizzes/${lessonId}`,
+        ADD_QUESTION: '/quizzes/questions',
+        DELETE_QUESTION: (questionId) => `/quizzes/questions/${questionId}`,
     },
 
     // Storage Keys

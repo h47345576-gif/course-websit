@@ -174,11 +174,11 @@ function displayCourseDetails(course) {
     const isFree = course.price === 0;
     const lessons = course.lessons || [];
 
-    // Check if user is enrolled (This is a basic check, ideally backend should confirm)
-    // For now, we assume if they can see the content_url, they can play it.
-    // Since our backend endpoint /:id/lessons is public, we can just check if url exists.
+    window.currentCourse = course;
 
-    window.currentCourse = course; // Store for easy access
+    const currentUser = api.getCurrentUser();
+    const isInstructor = currentUser && (currentUser.role === 'admin' || 
+        (currentUser.role === 'teacher' && (course.instructor_id === currentUser.id || course.instructor === currentUser.name)));
 
     container.innerHTML = `
         <div class="course-header">
@@ -202,17 +202,35 @@ function displayCourseDetails(course) {
         
         <div class="course-body">
             <div class="course-content-section">
-                <h2>محتوى الكورس</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>محتوى الكورس</h2>
+                    ${isInstructor ? `
+                        <button class="btn btn-primary" onclick="openAddLessonModal(${course.id})">
+                            ➕ إضافة درس جديد
+                        </button>
+                    ` : ''}
+                </div>
                 <div class="lessons-list">
+                    ${lessons.length === 0 ? '<p style="text-align: center; color: #666; padding: 40px;">لا توجد دروس في هذا الكورس بعد</p>' : ''}
                     ${lessons.map((lesson, index) => `
-                        <div class="lesson-item ${lesson.content_url ? 'clickable' : ''}" onclick="${lesson.content_url ? `playLesson(${lesson.id})` : ''}" style="${lesson.content_url ? 'cursor: pointer;' : ''}">
+                        <div class="lesson-item ${lesson.content_url ? 'clickable' : ''}" 
+                             onclick="${lesson.content_url && !isInstructor ? `playLesson(${lesson.id})` : ''}" 
+                             style="${lesson.content_url && !isInstructor ? 'cursor: pointer;' : ''}">
                             <span class="lesson-number">${index + 1}</span>
                             <div class="lesson-info">
                                 <h4>${lesson.title}</h4>
                                 <span class="lesson-type">${getLessonTypeIcon(lesson.type)} ${getLessonTypeName(lesson.type)}</span>
                             </div>
                             <span class="lesson-duration">${formatLessonDuration(lesson.duration_seconds)}</span>
-                            ${lesson.content_url ? '<span>▶</span>' : '<span>🔒</span>'}
+                            ${isInstructor ? `
+                                <div class="lesson-actions" onclick="event.stopPropagation()">
+                                    <button class="action-btn edit-btn" onclick="openEditLessonModal(${lesson.id})" title="تعديل">✏️</button>
+                                    <button class="action-btn delete-btn" onclick="deleteLesson(${lesson.id}, '${lesson.title.replace(/'/g, "\\'")}')" title="حذف">🗑️</button>
+                                    <button class="action-btn quiz-btn" onclick="openQuizModal(${lesson.id})" title="إضافة اختبار">📝</button>
+                                    ${index > 0 ? `<button class="action-btn move-btn" onclick="moveLessonUp(${lesson.id}, ${index})" title="تحريك للأعلى">⬆️</button>` : ''}
+                                    ${index < lessons.length - 1 ? `<button class="action-btn move-btn" onclick="moveLessonDown(${lesson.id}, ${index})" title="تحريك للأسفل">⬇️</button>` : ''}
+                                </div>
+                            ` : (lesson.content_url ? '<span>▶</span>' : '<span>🔒</span>')}
                         </div>
                     `).join('')}
                 </div>
@@ -238,6 +256,10 @@ function displayCourseDetails(course) {
             </div>
         </div>
     `;
+
+    if (isInstructor) {
+        addInstructorModals();
+    }
 }
 
 // Play Lesson Function
@@ -317,6 +339,453 @@ function formatLessonDuration(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Instructor Management Functions
+function addInstructorModals() {
+    if (document.getElementById('lessonModal')) return;
+
+    document.body.insertAdjacentHTML('beforeend', `
+        <!-- Add/Edit Lesson Modal -->
+        <div class="modal" id="lessonModal">
+            <div class="modal-content" style="max-width: 600px;">
+                <span class="modal-close" onclick="closeLessonModal()">&times;</span>
+                <h2 class="modal-title" id="lessonModalTitle">➕ إضافة درس جديد</h2>
+                <form id="lessonForm" onsubmit="saveLesson(event)">
+                    <input type="hidden" id="lessonId">
+                    <input type="hidden" id="lessonCourseId">
+                    
+                    <div class="form-group">
+                        <label>عنوان الدرس *</label>
+                        <input type="text" id="lessonTitle" required placeholder="مثال: مقدمة في البرمجة">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>نوع الدرس *</label>
+                        <select id="lessonType" onchange="updateLessonTypeUI()">
+                            <option value="video">🎬 فيديو</option>
+                            <option value="text">📝 نص</option>
+                            <option value="pdf">📄 PDF</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="videoUrlGroup">
+                        <label>رابط الفيديو</label>
+                        <input type="url" id="lessonContentUrl" placeholder="رابط YouTube أو رابط مباشر">
+                        <small style="color: #666;">يمكنك رفع الفيديو من لوحة تحكم المعلم</small>
+                    </div>
+                    
+                    <div class="form-group" id="textContentGroup" style="display: none;">
+                        <label>محتوى نصي</label>
+                        <textarea id="lessonTextContent" rows="5" placeholder="اكتب محتوى الدرس هنا..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>الوصف</label>
+                        <textarea id="lessonDescription" rows="2" placeholder="وصف مختصر للدرس (اختياري)"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>المدة (بالدقائق)</label>
+                            <input type="number" id="lessonDuration" min="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>ترتيب الدرس</label>
+                            <input type="number" id="lessonOrder" min="1" placeholder="1">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="lessonIsFree"> درس مجاني (متاح للجميع)
+                        </label>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="submit" class="btn btn-primary">💾 حفظ</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeLessonModal()">إلغاء</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quiz Modal -->
+        <div class="modal" id="quizModal">
+            <div class="modal-content" style="max-width: 700px;">
+                <span class="modal-close" onclick="closeQuizModal()">&times;</span>
+                <h2 class="modal-title">📝 إدارة الاختبار</h2>
+                <div id="quizContent">
+                    <p>جاري التحميل...</p>
+                </div>
+            </div>
+        </div>
+    `);
+
+    addInstructorStyles();
+}
+
+function addInstructorStyles() {
+    if (document.getElementById('instructorStyles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'instructorStyles';
+    style.textContent = `
+        .lesson-actions {
+            display: flex;
+            gap: 5px;
+            margin-right: 10px;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 5px 8px;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background: #f0f0f0;
+        }
+        .edit-btn:hover { background: #e0f2fe; }
+        .delete-btn:hover { background: #fee2e2; }
+        .quiz-btn:hover { background: #fef3c7; }
+        .move-btn:hover { background: #e0e7ff; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;
+            font-family: inherit;
+        }
+        .form-row { display: flex; gap: 15px; }
+        .form-row .form-group { flex: 1; }
+        .question-item {
+            background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;
+        }
+        .answer-option {
+            display: flex; align-items: center; gap: 10px; margin: 8px 0;
+        }
+        .answer-option input[type="text"] { flex: 1; }
+        .answer-option input[type="checkbox"] { width: 20px; height: 20px; }
+        .quiz-type-btn {
+            padding: 10px 20px; border: 2px solid #667eea; background: white;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s;
+        }
+        .quiz-type-btn:hover, .quiz-type-btn.active {
+            background: #667eea; color: white;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function openAddLessonModal(courseId) {
+    document.getElementById('lessonModalTitle').textContent = '➕ إضافة درس جديد';
+    document.getElementById('lessonId').value = '';
+    document.getElementById('lessonCourseId').value = courseId;
+    document.getElementById('lessonForm').reset();
+    updateLessonTypeUI();
+    document.getElementById('lessonModal').style.display = 'flex';
+}
+
+function openEditLessonModal(lessonId) {
+    const lesson = window.currentCourse.lessons.find(l => l.id == lessonId);
+    if (!lesson) return;
+
+    document.getElementById('lessonModalTitle').textContent = '✏️ تعديل الدرس';
+    document.getElementById('lessonId').value = lessonId;
+    document.getElementById('lessonCourseId').value = window.currentCourse.id;
+    document.getElementById('lessonTitle').value = lesson.title;
+    document.getElementById('lessonType').value = lesson.type || 'video';
+    document.getElementById('lessonContentUrl').value = lesson.content_url || '';
+    document.getElementById('lessonTextContent').value = lesson.text_content || '';
+    document.getElementById('lessonDescription').value = lesson.description || '';
+    document.getElementById('lessonDuration').value = Math.floor((lesson.duration_seconds || 0) / 60);
+    document.getElementById('lessonOrder').value = lesson.order_num || 1;
+    document.getElementById('lessonIsFree').checked = lesson.is_free;
+    updateLessonTypeUI();
+    document.getElementById('lessonModal').style.display = 'flex';
+}
+
+function closeLessonModal() {
+    document.getElementById('lessonModal').style.display = 'none';
+}
+
+function updateLessonTypeUI() {
+    const type = document.getElementById('lessonType').value;
+    document.getElementById('videoUrlGroup').style.display = type === 'video' || type === 'pdf' ? 'block' : 'none';
+    document.getElementById('textContentGroup').style.display = type === 'text' ? 'block' : 'none';
+}
+
+async function saveLesson(e) {
+    e.preventDefault();
+    
+    const lessonId = document.getElementById('lessonId').value;
+    const courseId = document.getElementById('lessonCourseId').value;
+    const type = document.getElementById('lessonType').value;
+    
+    const data = {
+        title: document.getElementById('lessonTitle').value,
+        type: type,
+        description: document.getElementById('lessonDescription').value,
+        duration_seconds: parseInt(document.getElementById('lessonDuration').value || 0) * 60,
+        order_num: parseInt(document.getElementById('lessonOrder').value || 1),
+        is_free: document.getElementById('lessonIsFree').checked
+    };
+
+    if (type === 'video' || type === 'pdf') {
+        data.content_url = document.getElementById('lessonContentUrl').value;
+    } else if (type === 'text') {
+        data.text_content = document.getElementById('lessonTextContent').value;
+    }
+
+    try {
+        if (lessonId) {
+            await api.updateLesson(lessonId, data);
+            alert('✅ تم تحديث الدرس بنجاح');
+        } else {
+            await api.addLesson(courseId, data);
+            alert('✅ تم إضافة الدرس بنجاح');
+        }
+        closeLessonModal();
+        loadCourseDetails();
+    } catch (error) {
+        alert('❌ خطأ: ' + error.message);
+    }
+}
+
+async function deleteLesson(lessonId, lessonTitle) {
+    if (!confirm(`هل أنت متأكد من حذف الدرس "${lessonTitle}"؟\n\n⚠️ سيتم حذف جميع الاختبارات المرتبطة بهذا الدرس.`)) {
+        return;
+    }
+
+    try {
+        await api.deleteLesson(lessonId);
+        alert('✅ تم حذف الدرس بنجاح');
+        loadCourseDetails();
+    } catch (error) {
+        alert('❌ خطأ: ' + error.message);
+    }
+}
+
+async function moveLessonUp(lessonId, currentIndex) {
+    if (currentIndex <= 0) return;
+    const lessons = window.currentCourse.lessons;
+    
+    try {
+        await api.updateLesson(lessonId, { order_num: currentIndex });
+        await api.updateLesson(lessons[currentIndex - 1].id, { order_num: currentIndex + 1 });
+        loadCourseDetails();
+    } catch (error) {
+        alert('❌ خطأ: ' + error.message);
+    }
+}
+
+async function moveLessonDown(lessonId, currentIndex) {
+    const lessons = window.currentCourse.lessons;
+    if (currentIndex >= lessons.length - 1) return;
+    
+    try {
+        await api.updateLesson(lessonId, { order_num: currentIndex + 2 });
+        await api.updateLesson(lessons[currentIndex + 1].id, { order_num: currentIndex + 1 });
+        loadCourseDetails();
+    } catch (error) {
+        alert('❌ خطأ: ' + error.message);
+    }
+}
+
+// Quiz Management
+async function openQuizModal(lessonId) {
+    window.currentQuizLessonId = lessonId;
+    const lesson = window.currentCourse.lessons.find(l => l.id == lessonId);
+    
+    document.getElementById('quizModal').style.display = 'flex';
+    document.getElementById('quizContent').innerHTML = `
+        <h3>📝 اختبار: ${lesson.title}</h3>
+        <div id="quizManager">
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="quiz-type-btn active" onclick="selectQuizType('multiple_choice')" id="mcBtn">
+                    🔘 اختيار متعدد
+                </button>
+                <button class="quiz-type-btn" onclick="selectQuizType('true_false')" id="tfBtn">
+                    ✅ صح أو خطأ
+                </button>
+            </div>
+            
+            <div id="questionsList">جاري تحميل الأسئلة...</div>
+            
+            <button class="btn btn-primary" onclick="addQuestion()" style="margin-top: 15px;">
+                ➕ إضافة سؤال
+            </button>
+        </div>
+    `;
+    
+    await loadQuizQuestions(lessonId);
+}
+
+function closeQuizModal() {
+    document.getElementById('quizModal').style.display = 'none';
+}
+
+let currentQuizType = 'multiple_choice';
+
+function selectQuizType(type) {
+    currentQuizType = type;
+    document.querySelectorAll('.quiz-type-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(type === 'multiple_choice' ? 'mcBtn' : 'tfBtn').classList.add('active');
+}
+
+async function loadQuizQuestions(lessonId) {
+    try {
+        const quiz = await api.getQuiz(lessonId);
+        window.currentQuiz = quiz;
+        renderQuestions(quiz.questions || []);
+    } catch (error) {
+        window.currentQuiz = null;
+        renderQuestions([]);
+    }
+}
+
+function renderQuestions(questions) {
+    const container = document.getElementById('questionsList');
+    
+    if (questions.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">لا توجد أسئلة بعد. أضف سؤالك الأول!</p>';
+        return;
+    }
+
+    container.innerHTML = questions.map((q, index) => `
+        <div class="question-item">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <strong>سؤال ${index + 1}</strong>
+                <button class="action-btn delete-btn" onclick="deleteQuestion(${q.id})" title="حذف السؤال">🗑️</button>
+            </div>
+            <p>${q.question_text}</p>
+            ${q.type === 'true_false' ? `
+                <div style="color: ${q.correct_answer ? '#22c55e' : '#ef4444'};">
+                    الإجابة الصحيحة: ${q.correct_answer ? '✅ صح' : '❌ خطأ'}
+                </div>
+            ` : `
+                <div style="margin-top: 10px;">
+                    ${(q.answers || []).map(a => `
+                        <div style="color: ${a.is_correct ? '#22c55e' : '#666'};">
+                            ${a.is_correct ? '✓' : '○'} ${a.answer_text}
+                        </div>
+                    `).join('')}
+                </div>
+            `}
+        </div>
+    `).join('');
+}
+
+function addQuestion() {
+    const container = document.getElementById('questionsList');
+    
+    const questionHtml = currentQuizType === 'true_false' ? `
+        <div class="question-item" id="newQuestion">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <strong>سؤال جديد (صح أو خطأ)</strong>
+                <button class="action-btn delete-btn" onclick="document.getElementById('newQuestion').remove()">🗑️</button>
+            </div>
+            <input type="text" id="questionText" placeholder="اكتب السؤال هنا..." style="width: 100%; margin-bottom: 10px;">
+            <div style="margin: 10px 0;">
+                <label style="display: inline-flex; align-items: center; gap: 5px; margin-left: 20px;">
+                    <input type="radio" name="tfAnswer" value="true" checked> ✅ صح
+                </label>
+                <label style="display: inline-flex; align-items: center; gap: 5px;">
+                    <input type="radio" name="tfAnswer" value="false"> ❌ خطأ
+                </label>
+            </div>
+            <button class="btn btn-primary" onclick="saveQuestion('true_false')">💾 حفظ السؤال</button>
+        </div>
+    ` : `
+        <div class="question-item" id="newQuestion">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <strong>سؤال جديد (اختيار متعدد)</strong>
+                <button class="action-btn delete-btn" onclick="document.getElementById('newQuestion').remove()">🗑️</button>
+            </div>
+            <input type="text" id="questionText" placeholder="اكتب السؤال هنا..." style="width: 100%; margin-bottom: 10px;">
+            <div id="answersContainer">
+                <div class="answer-option">
+                    <input type="checkbox" id="correct0">
+                    <input type="text" id="answer0" placeholder="الخيار الأول">
+                </div>
+                <div class="answer-option">
+                    <input type="checkbox" id="correct1">
+                    <input type="text" id="answer1" placeholder="الخيار الثاني">
+                </div>
+                <div class="answer-option">
+                    <input type="checkbox" id="correct2">
+                    <input type="text" id="answer2" placeholder="الخيار الثالث">
+                </div>
+                <div class="answer-option">
+                    <input type="checkbox" id="correct3">
+                    <input type="text" id="answer3" placeholder="الخيار الرابع">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="saveQuestion('multiple_choice')" style="margin-top: 10px;">💾 حفظ السؤال</button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('afterbegin', questionHtml);
+}
+
+async function saveQuestion(type) {
+    const questionText = document.getElementById('questionText').value;
+    if (!questionText.trim()) {
+        alert('⚠️ الرجاء كتابة نص السؤال');
+        return;
+    }
+
+    const data = {
+        lesson_id: window.currentQuizLessonId,
+        question_text: questionText,
+        type: type,
+        answers: []
+    };
+
+    if (type === 'true_false') {
+        data.correct_answer = document.querySelector('input[name="tfAnswer"]:checked').value === 'true';
+    } else {
+        for (let i = 0; i < 4; i++) {
+            const answerText = document.getElementById(`answer${i}`).value;
+            if (answerText.trim()) {
+                data.answers.push({
+                    answer_text: answerText,
+                    is_correct: document.getElementById(`correct${i}`).checked
+                });
+            }
+        }
+        
+        if (data.answers.length < 2) {
+            alert('⚠️ الرجاء إضافة خيارين على الأقل');
+            return;
+        }
+        if (!data.answers.some(a => a.is_correct)) {
+            alert('⚠️ الرجاء تحديد الإجابة الصحيحة');
+            return;
+        }
+    }
+
+    try {
+        await api.addQuestion(data);
+        document.getElementById('newQuestion').remove();
+        await loadQuizQuestions(window.currentQuizLessonId);
+        alert('✅ تم حفظ السؤال بنجاح');
+    } catch (error) {
+        alert('❌ خطأ: ' + error.message);
+    }
+}
+
+async function deleteQuestion(questionId) {
+    if (!confirm('هل أنت متأكد من حذف هذا السؤال؟')) return;
+    
+    try {
+        await api.deleteQuestion(questionId);
+        await loadQuizQuestions(window.currentQuizLessonId);
+    } catch (error) {
+        alert('❌ خطأ: ' + error.message);
+    }
 }
 
 // Enroll in course

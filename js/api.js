@@ -225,9 +225,48 @@ class ApiService {
         });
     }
 
-    async markAllNotificationsRead() {
+async markAllNotificationsRead() {
         return this.request(CONFIG.ENDPOINTS.NOTIFICATIONS_READ_ALL, {
             method: 'PUT',
+        });
+    }
+
+    // Lesson Methods
+    async addLesson(courseId, lessonData) {
+        return this.request(CONFIG.ENDPOINTS.ADD_LESSON(courseId), {
+            method: 'POST',
+            body: JSON.stringify(lessonData),
+        });
+    }
+
+    async updateLesson(lessonId, lessonData) {
+        return this.request(CONFIG.ENDPOINTS.UPDATE_LESSON(lessonId), {
+            method: 'PUT',
+            body: JSON.stringify(lessonData),
+        });
+    }
+
+    async deleteLesson(lessonId) {
+        return this.request(CONFIG.ENDPOINTS.DELETE_LESSON(lessonId), {
+            method: 'DELETE',
+        });
+    }
+
+    // Quiz Methods
+    async getQuiz(lessonId) {
+        return this.request(CONFIG.ENDPOINTS.QUIZ(lessonId));
+    }
+
+    async addQuestion(questionData) {
+        return this.request(CONFIG.ENDPOINTS.ADD_QUESTION, {
+            method: 'POST',
+            body: JSON.stringify(questionData),
+        });
+    }
+
+    async deleteQuestion(questionId) {
+        return this.request(CONFIG.ENDPOINTS.DELETE_QUESTION(questionId), {
+            method: 'DELETE',
         });
     }
 }
