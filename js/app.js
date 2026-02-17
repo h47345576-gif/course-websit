@@ -457,15 +457,22 @@ async function submitPayment() {
     try {
         const response = await api.submitPayment(window.currentPaymentCourse.id, currentPaymentData);
 
-        // Store payment ID for receipt upload
         window.currentPaymentId = response.payment_id;
 
-        // Show success step
         document.getElementById('paymentStep2').style.display = 'none';
         document.getElementById('paymentStep3').style.display = 'block';
 
+        if (response.status === 'pending' && response.message?.includes('pending')) {
+            alert('لديك طلب دفع قيد الانتظار لهذا الكورس. يمكنك رفع الإيصال الآن.');
+        }
+
     } catch (error) {
-        alert('خطأ في إرسال الدفع: ' + error.message);
+        if (error.message.includes('already paid')) {
+            alert('لقد قمت بالدفع بالفعل لهذا الكورس!');
+            closePaymentModal();
+        } else {
+            alert('خطأ في إرسال الدفع: ' + error.message);
+        }
     }
 }
 
