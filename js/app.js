@@ -348,63 +348,109 @@ function addInstructorModals() {
     document.body.insertAdjacentHTML('beforeend', `
         <!-- Add/Edit Lesson Modal -->
         <div class="modal" id="lessonModal">
-            <div class="modal-content" style="max-width: 600px;">
-                <span class="modal-close" onclick="closeLessonModal()">&times;</span>
-                <h2 class="modal-title" id="lessonModalTitle">➕ إضافة درس جديد</h2>
+            <div class="modal-content modal-lesson">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="lessonModalTitle">➕ إضافة درس جديد</h2>
+                    <span class="modal-close" onclick="closeLessonModal()">&times;</span>
+                </div>
                 <form id="lessonForm" onsubmit="saveLesson(event)">
                     <input type="hidden" id="lessonId">
                     <input type="hidden" id="lessonCourseId">
                     
-                    <div class="form-group">
-                        <label>عنوان الدرس *</label>
-                        <input type="text" id="lessonTitle" required placeholder="مثال: مقدمة في البرمجة">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>نوع الدرس *</label>
-                        <select id="lessonType" onchange="updateLessonTypeUI()">
-                            <option value="video">🎬 فيديو</option>
-                            <option value="text">📝 نص</option>
-                            <option value="pdf">📄 PDF</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group" id="videoUrlGroup">
-                        <label>رابط الفيديو</label>
-                        <input type="url" id="lessonContentUrl" placeholder="رابط YouTube أو رابط مباشر">
-                        <small style="color: #666;">يمكنك رفع الفيديو من لوحة تحكم المعلم</small>
-                    </div>
-                    
-                    <div class="form-group" id="textContentGroup" style="display: none;">
-                        <label>محتوى نصي</label>
-                        <textarea id="lessonTextContent" rows="5" placeholder="اكتب محتوى الدرس هنا..."></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>الوصف</label>
-                        <textarea id="lessonDescription" rows="2" placeholder="وصف مختصر للدرس (اختياري)"></textarea>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>المدة (بالدقائق)</label>
-                            <input type="number" id="lessonDuration" min="0" placeholder="0">
+                    <div class="modal-body">
+                        <div class="form-section">
+                            <div class="section-title">📋 معلومات الدرس</div>
+                            
+                            <div class="form-group">
+                                <label for="lessonTitle">عنوان الدرس <span class="required">*</span></label>
+                                <input type="text" id="lessonTitle" required placeholder="مثال: مقدمة في البرمجة">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="lessonType">نوع المحتوى <span class="required">*</span></label>
+                                <div class="type-selector">
+                                    <label class="type-option">
+                                        <input type="radio" name="lessonTypeRadio" value="video" checked onchange="updateLessonTypeUI()">
+                                        <span class="type-card">
+                                            <span class="type-icon">🎬</span>
+                                            <span class="type-name">فيديو</span>
+                                        </span>
+                                    </label>
+                                    <label class="type-option">
+                                        <input type="radio" name="lessonTypeRadio" value="text" onchange="updateLessonTypeUI()">
+                                        <span class="type-card">
+                                            <span class="type-icon">📝</span>
+                                            <span class="type-name">نص</span>
+                                        </span>
+                                    </label>
+                                    <label class="type-option">
+                                        <input type="radio" name="lessonTypeRadio" value="pdf" onchange="updateLessonTypeUI()">
+                                        <span class="type-card">
+                                            <span class="type-icon">📄</span>
+                                            <span class="type-name">PDF</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="videoUrlGroup">
+                                <label for="lessonContentUrl">رابط المحتوى</label>
+                                <div class="input-with-icon">
+                                    <span class="input-icon">🔗</span>
+                                    <input type="url" id="lessonContentUrl" placeholder="الصق رابط YouTube أو رابط الفيديو المباشر">
+                                </div>
+                                <div class="helper-text">
+                                    <span>💡</span> يمكنك رفع الفيديوهات من <a href="teacher/courses.html" target="_blank">لوحة تحكم المعلم</a>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="textContentGroup" style="display: none;">
+                                <label for="lessonTextContent">محتوى الدرس النصي</label>
+                                <textarea id="lessonTextContent" rows="8" placeholder="اكتب محتوى الدرس هنا... يمكنك استخدام Markdown للتنسيق"></textarea>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>ترتيب الدرس</label>
-                            <input type="number" id="lessonOrder" min="1" placeholder="1">
+                        
+                        <div class="form-section">
+                            <div class="section-title">⚙️ إعدادات إضافية</div>
+                            
+                            <div class="form-group">
+                                <label for="lessonDescription">وصف الدرس</label>
+                                <textarea id="lessonDescription" rows="2" placeholder="وصف مختصر للدرس (اختياري)"></textarea>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="lessonDuration">
+                                        <span>⏱️</span> المدة (دقيقة)
+                                    </label>
+                                    <input type="number" id="lessonDuration" min="0" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="lessonOrder">
+                                        <span>🔢</span> ترتيب الدرس
+                                    </label>
+                                    <input type="number" id="lessonOrder" min="1" placeholder="1">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="lessonIsFree">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-text">
+                                        <strong>درس مجاني</strong>
+                                        <small>متاح للمشاهدة بدون تسجيل</small>
+                                    </span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="lessonIsFree"> درس مجاني (متاح للجميع)
-                        </label>
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button type="submit" class="btn btn-primary">💾 حفظ</button>
-                        <button type="button" class="btn btn-secondary" onclick="closeLessonModal()">إلغاء</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" onclick="closeLessonModal()">إلغاء</button>
+                        <button type="submit" class="btn btn-primary">
+                            <span>💾</span> حفظ الدرس
+                        </button>
                     </div>
                 </form>
             </div>
@@ -412,9 +458,11 @@ function addInstructorModals() {
 
         <!-- Quiz Modal -->
         <div class="modal" id="quizModal">
-            <div class="modal-content" style="max-width: 700px;">
-                <span class="modal-close" onclick="closeQuizModal()">&times;</span>
-                <h2 class="modal-title">📝 إدارة الاختبار</h2>
+            <div class="modal-content modal-quiz">
+                <div class="modal-header">
+                    <h2 class="modal-title">📝 إدارة الاختبار</h2>
+                    <span class="modal-close" onclick="closeQuizModal()">&times;</span>
+                </div>
                 <div id="quizContent">
                     <p>جاري التحميل...</p>
                 </div>
@@ -452,28 +500,284 @@ function addInstructorStyles() {
         .delete-btn:hover { background: #fee2e2; }
         .quiz-btn:hover { background: #fef3c7; }
         .move-btn:hover { background: #e0e7ff; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;
-            font-family: inherit;
+        
+        /* Modal Styles */
+        .modal-lesson, .modal-quiz {
+            max-width: 650px;
+            width: 95%;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
-        .form-row { display: flex; gap: 15px; }
-        .form-row .form-group { flex: 1; }
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header .modal-title {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+        .modal-header .modal-close {
+            color: white;
+            opacity: 0.8;
+            font-size: 1.5rem;
+        }
+        .modal-header .modal-close:hover {
+            opacity: 1;
+        }
+        .modal-body {
+            padding: 24px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .modal-footer {
+            padding: 16px 24px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 1px solid #e9ecef;
+        }
+        .modal-footer .btn {
+            min-width: 120px;
+            padding: 12px 24px;
+            font-weight: 600;
+        }
+        
+        /* Form Styles */
+        .form-section {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4b5563;
+            font-size: 0.9rem;
+        }
+        .required {
+            color: #ef4444;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="url"],
+        .form-group input[type="number"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background: white;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        /* Type Selector */
+        .type-selector {
+            display: flex;
+            gap: 12px;
+        }
+        .type-option {
+            flex: 1;
+            cursor: pointer;
+        }
+        .type-option input {
+            display: none;
+        }
+        .type-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            transition: all 0.2s;
+            background: white;
+        }
+        .type-option input:checked + .type-card {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+        .type-icon {
+            font-size: 1.5rem;
+            margin-bottom: 6px;
+        }
+        .type-name {
+            font-weight: 600;
+            color: #4b5563;
+            font-size: 0.9rem;
+        }
+        
+        /* Input with Icon */
+        .input-with-icon {
+            position: relative;
+        }
+        .input-with-icon .input-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+        .input-with-icon input {
+            padding-left: 44px;
+        }
+        
+        /* Helper Text */
+        .helper-text {
+            margin-top: 8px;
+            padding: 10px 12px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #0369a1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .helper-text a {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        /* Form Row */
+        .form-row {
+            display: flex;
+            gap: 16px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        /* Checkbox Label */
+        .checkbox-label {
+            display: flex !important;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            padding: 14px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .checkbox-label:hover {
+            background: #f0f0f0;
+        }
+        .checkbox-label input {
+            display: none;
+        }
+        .checkbox-custom {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .checkbox-label input:checked + .checkbox-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+        .checkbox-label input:checked + .checkbox-custom::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+        }
+        .checkbox-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .checkbox-text strong {
+            color: #374151;
+        }
+        .checkbox-text small {
+            color: #6b7280;
+            font-size: 0.8rem;
+        }
+        
+        /* Question Item */
         .question-item {
-            background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #e5e7eb;
         }
         .answer-option {
-            display: flex; align-items: center; gap: 10px; margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
         }
-        .answer-option input[type="text"] { flex: 1; }
-        .answer-option input[type="checkbox"] { width: 20px; height: 20px; }
+        .answer-option input[type="text"] {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .answer-option input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #667eea;
+        }
+        
+        /* Quiz Type Buttons */
         .quiz-type-btn {
-            padding: 10px 20px; border: 2px solid #667eea; background: white;
-            border-radius: 8px; cursor: pointer; transition: all 0.2s;
+            padding: 12px 24px;
+            border: 2px solid #667eea;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
         }
         .quiz-type-btn:hover, .quiz-type-btn.active {
-            background: #667eea; color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
         }
     `;
     document.head.appendChild(style);
@@ -484,6 +788,7 @@ function openAddLessonModal(courseId) {
     document.getElementById('lessonId').value = '';
     document.getElementById('lessonCourseId').value = courseId;
     document.getElementById('lessonForm').reset();
+    document.querySelector('input[name="lessonTypeRadio"][value="video"]').checked = true;
     updateLessonTypeUI();
     document.getElementById('lessonModal').style.display = 'flex';
 }
@@ -496,7 +801,10 @@ function openEditLessonModal(lessonId) {
     document.getElementById('lessonId').value = lessonId;
     document.getElementById('lessonCourseId').value = window.currentCourse.id;
     document.getElementById('lessonTitle').value = lesson.title;
-    document.getElementById('lessonType').value = lesson.type || 'video';
+    
+    const typeRadio = document.querySelector(`input[name="lessonTypeRadio"][value="${lesson.type || 'video'}"]`);
+    if (typeRadio) typeRadio.checked = true;
+    
     document.getElementById('lessonContentUrl').value = lesson.content_url || '';
     document.getElementById('lessonTextContent').value = lesson.text_content || '';
     document.getElementById('lessonDescription').value = lesson.description || '';
@@ -512,9 +820,29 @@ function closeLessonModal() {
 }
 
 function updateLessonTypeUI() {
-    const type = document.getElementById('lessonType').value;
-    document.getElementById('videoUrlGroup').style.display = type === 'video' || type === 'pdf' ? 'block' : 'none';
-    document.getElementById('textContentGroup').style.display = type === 'text' ? 'block' : 'none';
+    const selectedType = document.querySelector('input[name="lessonTypeRadio"]:checked');
+    const type = selectedType ? selectedType.value : 'video';
+    
+    const videoUrlGroup = document.getElementById('videoUrlGroup');
+    const textContentGroup = document.getElementById('textContentGroup');
+    const videoUrlLabel = videoUrlGroup.querySelector('label');
+    const videoUrlInput = document.getElementById('lessonContentUrl');
+    
+    if (type === 'text') {
+        videoUrlGroup.style.display = 'none';
+        textContentGroup.style.display = 'block';
+    } else {
+        videoUrlGroup.style.display = 'block';
+        textContentGroup.style.display = 'none';
+        
+        if (type === 'video') {
+            videoUrlLabel.textContent = 'رابط الفيديو';
+            videoUrlInput.placeholder = 'الصق رابط YouTube أو رابط الفيديو المباشر';
+        } else if (type === 'pdf') {
+            videoUrlLabel.textContent = 'رابط ملف PDF';
+            videoUrlInput.placeholder = 'الصق رابط ملف PDF';
+        }
+    }
 }
 
 async function saveLesson(e) {
@@ -522,7 +850,8 @@ async function saveLesson(e) {
     
     const lessonId = document.getElementById('lessonId').value;
     const courseId = document.getElementById('lessonCourseId').value;
-    const type = document.getElementById('lessonType').value;
+    const selectedType = document.querySelector('input[name="lessonTypeRadio"]:checked');
+    const type = selectedType ? selectedType.value : 'video';
     
     const data = {
         title: document.getElementById('lessonTitle').value,
