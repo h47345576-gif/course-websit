@@ -227,8 +227,8 @@ function displayCourseDetails(course) {
                                     <button class="action-btn edit-btn" onclick="openEditLessonModal(${lesson.id})" title="تعديل">✏️</button>
                                     <button class="action-btn delete-btn" onclick="deleteLesson(${lesson.id}, '${lesson.title.replace(/'/g, "\\'")}')" title="حذف">🗑️</button>
                                     <button class="action-btn quiz-btn" onclick="openQuizModal(${lesson.id})" title="إضافة اختبار">📝</button>
-                                    ${index > 0 ? `<button class="action-btn move-btn" onclick="moveLessonUp(${lesson.id}, ${index})" title="تحريك للأعلى">⬆️</button>` : ''}
-                                    ${index < lessons.length - 1 ? `<button class="action-btn move-btn" onclick="moveLessonDown(${lesson.id}, ${index})" title="تحريك للأسفل">⬇️</button>` : ''}
+                                    ${index > 0 ? `<button class="action-btn move-btn" onclick="moveLessonUp(${lesson.id}, ${index})" title="تحريك للأعلى">👆</button>` : ''}
+                                    ${index < lessons.length - 1 ? `<button class="action-btn move-btn" onclick="moveLessonDown(${lesson.id}, ${index})" title="تحريك للأسفل">👇</button>` : ''}
                                 </div>
                             ` : (lesson.content_url ? '<span>▶</span>' : '<span>🔒</span>')}
                         </div>
