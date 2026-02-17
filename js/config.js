@@ -21,6 +21,7 @@ const CONFIG = {
         UPLOAD_RECEIPT: (id) => `/payments/${id}/receipt`,
         MY_PAYMENTS: '/payments/my',
         PAYMENT_DETAILS: (id) => `/payments/${id}`,
+        CONFIRM_PAYMENT: (id) => `/payments/${id}/confirm`,
 
         // Notifications
         NOTIFICATIONS: '/notifications',

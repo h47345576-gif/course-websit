@@ -197,6 +197,19 @@ class ApiService {
         return this.request(CONFIG.ENDPOINTS.PAYMENT_DETAILS(paymentId));
     }
 
+    // Admin Payment Methods
+    async getAllPayments(status = '') {
+        const query = status ? `?status=${status}` : '';
+        return this.request(`${CONFIG.ENDPOINTS.PAYMENTS}${query}`);
+    }
+
+    async confirmPayment(paymentId, status) {
+        return this.request(CONFIG.ENDPOINTS.CONFIRM_PAYMENT(paymentId), {
+            method: 'PUT',
+            body: JSON.stringify({ status }),
+        });
+    }
+
     // Notification Methods
     async getNotifications(limit = 20) {
         return this.request(`${CONFIG.ENDPOINTS.NOTIFICATIONS}?limit=${limit}`);
