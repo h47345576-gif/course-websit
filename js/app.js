@@ -520,6 +520,7 @@ function addInstructorStyles() {
         .modal-header .modal-title {
             margin: 0;
             font-size: 1.25rem;
+            color: white;
         }
         .modal-header .modal-close {
             color: white;
