@@ -468,10 +468,13 @@ async function submitPayment() {
 
     } catch (error) {
         if (error.message.includes('already paid')) {
-            alert('لقد قمت بالدفع بالفعل لهذا الكورس!');
+            alert('✅ تم تأكيد دفعك مسبقاً!\n\nيمكنك الوصول للكورس مباشرة.');
+            closePaymentModal();
+        } else if (error.message.includes('pending')) {
+            alert('⏳ لديك طلب دفع قيد المراجعة.\n\nيرجى الانتظار حتى يتم مراجعة إيصالك من الإدارة.');
             closePaymentModal();
         } else {
-            alert('خطأ في إرسال الدفع: ' + error.message);
+            alert('⚠️ حدث خطأ أثناء إرسال طلب الدفع.\n\nيرجى المحاولة مرة أخرى أو التواصل مع الدعم.');
         }
     }
 }
