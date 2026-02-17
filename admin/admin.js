@@ -114,4 +114,187 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentPage === 'index.html' || currentPage === '') {
         loadDashboardStats();
     }
+
+    // Initialize notifications
+    initNotifications();
 });
+
+// ===== Notification System =====
+let notificationInterval = null;
+
+function initNotifications() {
+    const headerActions = document.querySelector('.header-actions');
+    if (!headerActions) return;
+
+    // Inject notification bell HTML
+    const bellWrapper = document.createElement('div');
+    bellWrapper.className = 'notification-wrapper';
+    bellWrapper.innerHTML = `
+        <button class="notification-bell" id="notificationBell" onclick="toggleNotifications(event)">
+            🔔
+            <span class="notification-badge hidden" id="notificationBadge">0</span>
+        </button>
+        <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-dropdown-header">
+                <h4>🔔 الإشعارات</h4>
+                <button class="mark-all-read-btn" onclick="markAllRead(event)">تعيين الكل كمقروء</button>
+            </div>
+            <div class="notification-list" id="notificationList">
+                <div class="notification-empty">
+                    <span>🔔</span>
+                    <p>لا توجد إشعارات</p>
+                </div>
+            </div>
+            <div class="notification-dropdown-footer">
+                <a href="payments.html">عرض كل المدفوعات</a>
+            </div>
+        </div>
+    `;
+
+    headerActions.prepend(bellWrapper);
+
+    // Load initial count and start polling
+    updateNotificationCount();
+    notificationInterval = setInterval(updateNotificationCount, 30000);
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('notificationDropdown');
+        const bell = document.getElementById('notificationBell');
+        if (dropdown && bell && !dropdown.contains(e.target) && !bell.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+}
+
+async function updateNotificationCount() {
+    try {
+        const data = await api.getNotificationCount();
+        const badge = document.getElementById('notificationBadge');
+        if (!badge) return;
+
+        const count = data.count || 0;
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    } catch (error) {
+        // Silently fail — user might not be admin
+    }
+}
+
+function toggleNotifications(e) {
+    e.stopPropagation();
+    const dropdown = document.getElementById('notificationDropdown');
+    if (!dropdown) return;
+
+    const isShowing = dropdown.classList.contains('show');
+    if (isShowing) {
+        dropdown.classList.remove('show');
+    } else {
+        dropdown.classList.add('show');
+        loadNotifications();
+    }
+}
+
+async function loadNotifications() {
+    const list = document.getElementById('notificationList');
+    if (!list) return;
+
+    list.innerHTML = '<div class="notification-empty"><p>جاري التحميل...</p></div>';
+
+    try {
+        const data = await api.getNotifications(15);
+        const items = data.results || [];
+
+        if (items.length === 0) {
+            list.innerHTML = `
+                <div class="notification-empty">
+                    <span>✅</span>
+                    <p>لا توجد إشعارات</p>
+                </div>
+            `;
+            return;
+        }
+
+        list.innerHTML = items.map(notif => {
+            const isUnread = !notif.is_read;
+            const timeAgo = getTimeAgo(notif.created_at);
+            const icon = getNotificationIcon(notif.type);
+
+            return `
+                <div class="notification-item ${isUnread ? 'unread' : ''}" onclick="handleNotificationClick(${notif.id}, event)">
+                    <div class="notification-icon-circle">${icon}</div>
+                    <div class="notification-content">
+                        <div class="notif-title">${notif.title}</div>
+                        <div class="notif-message">${notif.message}</div>
+                        <div class="notif-time">${timeAgo}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+    } catch (error) {
+        list.innerHTML = `
+            <div class="notification-empty">
+                <span>⚠️</span>
+                <p>خطأ في تحميل الإشعارات</p>
+            </div>
+        `;
+    }
+}
+
+async function handleNotificationClick(notifId, e) {
+    e.stopPropagation();
+    try {
+        await api.markNotificationRead(notifId);
+        updateNotificationCount();
+
+        // Update the clicked item visually
+        const item = e.currentTarget;
+        item.classList.remove('unread');
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
+    }
+}
+
+async function markAllRead(e) {
+    e.stopPropagation();
+    try {
+        await api.markAllNotificationsRead();
+        updateNotificationCount();
+
+        // Update all items visually
+        document.querySelectorAll('.notification-item.unread').forEach(item => {
+            item.classList.remove('unread');
+        });
+    } catch (error) {
+        console.error('Error marking all as read:', error);
+    }
+}
+
+function getNotificationIcon(type) {
+    switch (type) {
+        case 'receipt_uploaded': return '🧾';
+        case 'new_payment': return '💳';
+        case 'new_enrollment': return '📝';
+        default: return '🔔';
+    }
+}
+
+function getTimeAgo(dateStr) {
+    const now = new Date();
+    const date = new Date(dateStr + 'Z'); // Treat as UTC
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'الآن';
+    if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
+    if (diffHours < 24) return `منذ ${diffHours} ساعة`;
+    if (diffDays < 7) return `منذ ${diffDays} يوم`;
+    return date.toLocaleDateString('ar');
+}

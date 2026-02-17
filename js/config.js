@@ -21,6 +21,12 @@ const CONFIG = {
         UPLOAD_RECEIPT: (id) => `/payments/${id}/receipt`,
         MY_PAYMENTS: '/payments/my',
         PAYMENT_DETAILS: (id) => `/payments/${id}`,
+
+        // Notifications
+        NOTIFICATIONS: '/notifications',
+        NOTIFICATIONS_COUNT: '/notifications/count',
+        NOTIFICATION_READ: (id) => `/notifications/${id}/read`,
+        NOTIFICATIONS_READ_ALL: '/notifications/read-all',
     },
 
     // Storage Keys

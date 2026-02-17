@@ -196,6 +196,27 @@ class ApiService {
     async getPaymentDetails(paymentId) {
         return this.request(CONFIG.ENDPOINTS.PAYMENT_DETAILS(paymentId));
     }
+
+    // Notification Methods
+    async getNotifications(limit = 20) {
+        return this.request(`${CONFIG.ENDPOINTS.NOTIFICATIONS}?limit=${limit}`);
+    }
+
+    async getNotificationCount() {
+        return this.request(CONFIG.ENDPOINTS.NOTIFICATIONS_COUNT);
+    }
+
+    async markNotificationRead(id) {
+        return this.request(CONFIG.ENDPOINTS.NOTIFICATION_READ(id), {
+            method: 'PUT',
+        });
+    }
+
+    async markAllNotificationsRead() {
+        return this.request(CONFIG.ENDPOINTS.NOTIFICATIONS_READ_ALL, {
+            method: 'PUT',
+        });
+    }
 }
 
 // Create global API instance
