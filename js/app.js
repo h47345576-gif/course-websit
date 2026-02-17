@@ -523,12 +523,20 @@ function addInstructorStyles() {
             color: white;
         }
         .modal-header .modal-close {
-            color: white;
-            opacity: 0.8;
+            color: #fecaca;
+            opacity: 1;
             font-size: 1.5rem;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
         }
         .modal-header .modal-close:hover {
-            opacity: 1;
+            color: white;
+            background: #ef4444;
         }
         .modal-body {
             padding: 24px;
