@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/course.css">
+    <link rel="stylesheet" href="css/payment.css">
 </head>
 
 <body>
@@ -39,6 +40,59 @@
         <div class="loading-spinner" style="padding: 100px;">
             <div class="spinner"></div>
             <p>جاري تحميل الكورس...</p>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closePaymentModal()">&times;</span>
+            <h2 class="modal-title">💳 إتمام عملية الدفع</h2>
+
+            <div id="paymentStep1" class="payment-step">
+                <div class="course-payment-info" id="coursePaymentInfo"></div>
+
+                <h3>اختر طريقة الدفع:</h3>
+                <div class="payment-methods">
+                    <div class="payment-method-card" onclick="selectPaymentMethod('cash')">
+                        <div class="method-icon">💵</div>
+                        <div class="method-name">دفع كاش</div>
+                        <div class="method-desc">الدفع مباشرة للمعلم أو المكتب</div>
+                    </div>
+                    <div class="payment-method-card" onclick="selectPaymentMethod('bank_transfer')">
+                        <div class="method-icon">🏦</div>
+                        <div class="method-name">حوالة بنكية</div>
+                        <div class="method-desc">تحويل بنكي إلى حساب المنصة</div>
+                    </div>
+                    <div class="payment-method-card" onclick="selectPaymentMethod('online')">
+                        <div class="method-icon">💳</div>
+                        <div class="method-name">دفع إلكتروني</div>
+                        <div class="method-desc">بطاقة ائتمان أو محفظة إلكترونية</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="paymentStep2" class="payment-step" style="display: none;">
+                <div class="payment-details" id="paymentDetails"></div>
+                <textarea id="paymentNotes" class="payment-notes" placeholder="ملاحظات إضافية (اختياري)"></textarea>
+                <button class="btn btn-primary btn-lg" onclick="submitPayment()">تأكيد الدفع</button>
+            </div>
+
+            <div id="paymentStep3" class="payment-step" style="display: none;">
+                <div class="payment-success">
+                    <div class="success-icon">✅</div>
+                    <h3>تم إرسال طلب الدفع بنجاح!</h3>
+                    <p>يمكنك الآن رفع إيصال الدفع للتأكيد الفوري</p>
+                    <div class="receipt-upload">
+                        <input type="file" id="receiptFile" accept="image/*" style="display: none;"
+                            onchange="handleReceiptSelected()">
+                        <button class="btn btn-secondary" onclick="document.getElementById('receiptFile').click()">📸
+                            رفع إيصال الدفع</button>
+                        <div id="receiptPreview"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="closePaymentModal()">إغلاق</button>
+                </div>
+            </div>
         </div>
     </div>
 

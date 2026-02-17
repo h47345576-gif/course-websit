@@ -167,6 +167,35 @@ class ApiService {
             method: 'DELETE',
         });
     }
+
+    // Payment Methods
+    async submitPayment(courseId, paymentData) {
+        return this.request(CONFIG.ENDPOINTS.SUBMIT_PAYMENT, {
+            method: 'POST',
+            body: JSON.stringify({
+                course_id: courseId,
+                ...paymentData
+            }),
+        });
+    }
+
+    async uploadReceipt(paymentId, file) {
+        const formData = new FormData();
+        formData.append('receipt', file);
+
+        return this.request(CONFIG.ENDPOINTS.UPLOAD_RECEIPT(paymentId), {
+            method: 'POST',
+            body: formData,
+        });
+    }
+
+    async getMyPayments() {
+        return this.request(CONFIG.ENDPOINTS.MY_PAYMENTS);
+    }
+
+    async getPaymentDetails(paymentId) {
+        return this.request(CONFIG.ENDPOINTS.PAYMENT_DETAILS(paymentId));
+    }
 }
 
 // Create global API instance

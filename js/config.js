@@ -14,6 +14,13 @@ const CONFIG = {
         COURSE_DETAILS: (id) => `/courses/${id}`,
         COURSE_LESSONS: (id) => `/courses/${id}/lessons`,
         ENROLL: (id) => `/courses/${id}/enroll`,
+
+        // Payments
+        PAYMENTS: '/payments',
+        SUBMIT_PAYMENT: '/payments',
+        UPLOAD_RECEIPT: (id) => `/payments/${id}/receipt`,
+        MY_PAYMENTS: '/payments/my',
+        PAYMENT_DETAILS: (id) => `/payments/${id}`,
     },
 
     // Storage Keys

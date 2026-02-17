@@ -321,12 +321,205 @@ function formatLessonDuration(seconds) {
 
 // Enroll in course
 async function enrollInCourse(courseId) {
+    if (!window.currentCourse) return;
+
+    const course = window.currentCourse;
+    const isFree = course.price === 0 && (!course.original_price || course.original_price === 0);
+
+    if (isFree) {
+        // Free course - direct enrollment
+        try {
+            await api.enrollInCourse(courseId);
+            alert('تم التسجيل بنجاح! 🎉');
+            window.location.reload();
+        } catch (error) {
+            alert('خطأ: ' + error.message);
+        }
+    } else {
+        // Paid course - show payment modal
+        showPaymentModal(course);
+    }
+}
+
+// Payment System Functions
+let currentPaymentData = {};
+
+function showPaymentModal(course) {
+    window.currentPaymentCourse = course;
+
+    // Update course info in modal
+    const infoDiv = document.getElementById('coursePaymentInfo');
+    infoDiv.innerHTML = `
+        <h3>${course.title}</h3>
+        <div class="price">${formatPrice(course.price, course.original_price, course.discount_percentage)}</div>
+    `;
+
+    // Reset modal to step 1
+    document.getElementById('paymentStep1').style.display = 'block';
+    document.getElementById('paymentStep2').style.display = 'none';
+    document.getElementById('paymentStep3').style.display = 'none';
+
+    // Show modal
+    const modal = document.getElementById('paymentModal');
+    modal.classList.add('active');
+    modal.style.display = 'flex';
+}
+
+function closePaymentModal() {
+    const modal = document.getElementById('paymentModal');
+    modal.classList.remove('active');
+    setTimeout(() => modal.style.display = 'none', 300);
+
+    // Reset data
+    currentPaymentData = {};
+    document.querySelectorAll('.payment-method-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+}
+
+function selectPaymentMethod(method) {
+    currentPaymentData.method = method;
+    currentPaymentData.amount = window.currentPaymentCourse.price;
+
+    // Highlight selected method
+    document.querySelectorAll('.payment-method-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    event.target.closest('.payment-method-card').classList.add('selected');
+
+    // Show step 2 with payment details
+    document.getElementById('paymentStep1').style.display = 'none';
+    document.getElementById('paymentStep2').style.display = 'block';
+
+    // Generate payment details based on method
+    const detailsDiv = document.getElementById('paymentDetails');
+
+    if (method === 'cash') {
+        detailsDiv.innerHTML = `
+            <div class="cash-info">
+                <h3>💵 الدفع كاش</h3>
+                <p>قم بالدفع مباشرة في المكتب أو للمعلم</p>
+                <p><strong>العنوان:</strong> دمشق - المزة - شارع الجلاء</p>
+                <p><strong>ساعات العمل:</strong> 9 صباحاً - 6 مساءً</p>
+                <p style="margin-top: 15px; font-size: 0.9rem;">بعد الدفع، قم برفع صورة الإيصال للتأكيد</p>
+            </div>
+            <div class="payment-info-row">
+                <span class="payment-info-label">المبلغ المطلوب:</span>
+                <span class="payment-info-value" style="font-size: 1.3rem; color: #667eea;">${formatPrice(currentPaymentData.amount, null, null)}</span>
+            </div>
+        `;
+    } else if (method === 'bank_transfer') {
+        detailsDiv.innerHTML = `
+            <div class="bank-info">
+                <h3>🏦 معلومات الحساب البنكي</h3>
+                <div class="bank-account-detail">
+                    <span><strong>اسم البنك:</strong> بنك سورية الدولي الإسلامي</span>
+                </div>
+                <div class="bank-account-detail">
+                    <span><strong>رقم الحساب:</strong> 123456789</span>
+                    <button class="copy-btn" onclick="copyToClipboard('123456789')">نسخ</button>
+                </div>
+                <div class="bank-account-detail">
+                    <span><strong>الاسم:</strong> منصة التعلم التعليمية</span>
+                </div>
+                <p style="margin-top: 15px; font-size: 0.9rem; text-align: center;">بعد التحويل، قم برفع صورة الإيصال للتأكيد</p>
+            </div>
+            <div class="payment-info-row">
+                <span class="payment-info-label">المبلغ المطلوب:</span>
+                <span class="payment-info-value" style="font-size: 1.3rem; color: #4facfe;">${formatPrice(currentPaymentData.amount, null, null)}</span>
+            </div>
+        `;
+    } else if (method === 'online') {
+        detailsDiv.innerHTML = `
+            <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 20px; border-radius: 15px; text-align: center; color: #333;">
+                <h3>💳 الدفع الإلكتروني</h3>
+                <p>سيتم توجيهك إلى بوابة الدفع الآمنة</p>
+                <p style="margin-top: 15px; font-size: 0.9rem;">⚡ الدفع الإلكتروني سيتم تفعيله قريباً</p>
+            </div>
+            <div class="payment-info-row">
+                <span class="payment-info-label">المبلغ المطلوب:</span>
+                <span class="payment-info-value" style="font-size: 1.3rem; color: #a8edea;">${formatPrice(currentPaymentData.amount, null, null)}</span>
+            </div>
+        `;
+    }
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('تم النسخ بنجاح! ✅');
+    });
+}
+
+async function submitPayment() {
+    const notes = document.getElementById('paymentNotes').value;
+    currentPaymentData.notes = notes;
+
     try {
-        await api.enrollInCourse(courseId);
-        alert('تم التسجيل بنجاح! 🎉');
-        window.location.reload();
+        const response = await api.submitPayment(window.currentPaymentCourse.id, currentPaymentData);
+
+        // Store payment ID for receipt upload
+        window.currentPaymentId = response.payment_id;
+
+        // Show success step
+        document.getElementById('paymentStep2').style.display = 'none';
+        document.getElementById('paymentStep3').style.display = 'block';
+
     } catch (error) {
-        alert('خطأ: ' + error.message);
+        alert('خطأ في إرسال الدفع: ' + error.message);
+    }
+}
+
+function handleReceiptSelected() {
+    const fileInput = document.getElementById('receiptFile');
+    const file = fileInput.files[0];
+
+    if (!file) return;
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const preview = document.getElementById('receiptPreview');
+        preview.innerHTML = `
+            <img src="${e.target.result}" alt="Receipt">
+            <div class="upload-progress" style="display: none;">
+                <div class="upload-progress-bar" id="uploadProgressBar"></div>
+            </div>
+            <button class="btn btn-primary" onclick="uploadReceipt()">📤 رفع الإيصال</button>
+        `;
+    };
+    reader.readAsDataURL(file);
+}
+
+async function uploadReceipt() {
+    const fileInput = document.getElementById('receiptFile');
+    const file = fileInput.files[0];
+
+    if (!file || !window.currentPaymentId) {
+        alert('حدث خطأ. الرجاء المحاولة مرة أخرى.');
+        return;
+    }
+
+    // Show progress
+    const progressContainer = document.querySelector('.upload-progress');
+    const progressBar = document.getElementById('uploadProgressBar');
+    progressContainer.style.display = 'block';
+    progressBar.style.width = '30%';
+
+    try {
+        await api.uploadReceipt(window.currentPaymentId, file);
+
+        progressBar.style.width = '100%';
+
+        setTimeout(() => {
+            alert('تم رفع الإيصال بنجاح! ✅\nسيتم مراجعة الدفع وتفعيل الكورس قريباً.');
+            closePaymentModal();
+            window.location.reload();
+        }, 500);
+
+    } catch (error) {
+        progressBar.style.width = '0%';
+        progressContainer.style.display = 'none';
+        alert('خطأ في رفع الإيصال: ' + error.message);
     }
 }
 
